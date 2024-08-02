@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
+const withMT = require("@material-tailwind/react/utils/withMT");
 
-const config: Config = {
+const config: Config = withMT({
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,6 +9,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        primary: "#FF5252", // Contoh warna kustom
+        secondary: "#BA1313", // Contoh warna kustom
+        customColor: "#F4F4F4", // Warna kustom tambahan
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
@@ -16,5 +22,5 @@ const config: Config = {
     },
   },
   plugins: [],
-};
+});
 export default config;
