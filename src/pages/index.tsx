@@ -1,7 +1,10 @@
+// pages/index.tsx
 import React from "react";
 import Head from "next/head";
 import CardImage from "@/components/login/CardImage";
 import FormLogin from "@/components/login/FormLogin";
+import { getSession } from "next-auth/react";
+import { GetServerSideProps } from "next";
 
 interface Props {
   message: string;
@@ -23,6 +26,24 @@ const Page: React.FC<Props> = () => {
       </div>
     </>
   );
+};
+
+// SSR function to check for session and redirect accordingly
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+
+  if (session) {
+    return {
+      redirect: {
+        destination: "/dashboard",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {}, // You can pass additional props here if needed
+  };
 };
 
 export default Page;
