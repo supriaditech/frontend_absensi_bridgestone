@@ -23,51 +23,53 @@ const useLogin = () => {
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     setLoadingLogin(true);
 
-    const loginPromise = signIn("credentials", {
-      redirect: false,
-      userId: data.userId,
-      password: data.password,
-      callbackUrl: "/dashboard",
-    });
+    try {
+      const signInResponse = await signIn("credentials", {
+        redirect: false,
+        userId: data.userId,
+        password: data.password,
+        callbackUrl: "/dashboard",
+      });
 
-    toast.promise(loginPromise, {
-      pending: "Submitting login data...",
-      success: "Login successful!",
-      error: {
-        render({ data }) {
-          setLoadingLogin(false);
-          return `Login failed`;
-        },
-      },
-    });
-
-    const resp = await loginPromise;
-
-    if (resp?.error) {
-      return;
-    }
-
-    const cookies = parseCookies();
-    let nextUrl = "/dashboard";
-
-    if (cookies.nextSession) {
-      const nextSessionObj = JSON.parse(cookies.nextSession);
-      nextUrl = nextSessionObj.url;
-      destroyCookie(null, "nextSession");
-    } else {
-      const raw = window.localStorage.getItem("nextSession") ?? "";
-
-      if (raw !== "" && raw !== undefined && raw !== null) {
-        const stored = JSON.parse(raw);
-        if (stored) {
-          nextUrl = String(stored?.url);
-        }
-      } else if (resp?.url) {
-        nextUrl = String(resp?.url);
+      if (!signInResponse) {
+        throw new Error("No response from server");
       }
-    }
 
-    router.push(nextUrl);
+      // Check if signIn was successful
+      if (signInResponse.ok && signInResponse.status === 200) {
+        toast.success("Login successful!", { autoClose: 3000 }); // Menutup toast setelah 3 detik
+
+        const cookies = parseCookies();
+        let nextUrl = "/dashboard";
+
+        if (cookies.nextSession) {
+          const nextSessionObj = JSON.parse(cookies.nextSession);
+          nextUrl = nextSessionObj.url;
+          destroyCookie(null, "nextSession");
+        } else {
+          const raw = window.localStorage.getItem("nextSession") ?? "";
+
+          if (raw !== "" && raw !== undefined && raw !== null) {
+            const stored = JSON.parse(raw);
+            if (stored) {
+              nextUrl = String(stored?.url);
+            }
+          } else if (signInResponse.url) {
+            nextUrl = String(signInResponse.url);
+          }
+        }
+
+        router.push(nextUrl);
+      } else {
+        throw new Error(signInResponse.error || "Login failed");
+      }
+    } catch (error) {
+      toast.error(
+        `Login failed, Silahkan masukan user id dan password yang benar`,
+        { autoClose: 3000 } // Menutup toast setelah 3 detik
+      );
+      setLoadingLogin(false);
+    }
   };
 
   return { register, handleSubmit, onSubmit, errors };
