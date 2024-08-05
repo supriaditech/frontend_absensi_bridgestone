@@ -1,8 +1,7 @@
-// pages/dashboard.tsx
 import React from "react";
-import Head from "next/head";
 import { getSession, signOut } from "next-auth/react";
 import { GetServerSideProps } from "next";
+import Master from "@/components/Master";
 
 function PageDashboard() {
   const handleLogout = () => {
@@ -10,28 +9,19 @@ function PageDashboard() {
   };
 
   return (
-    <>
-      <Head>
-        <title>Halaman Utama</title>
-        <meta name="description" content="This is the dashboard page" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-      <div className="h-screen bg-customColor flex flex-col justify-center items-center px-80 py-40">
-        <div className="bg-white grid grid-cols-1 lg:grid-cols-2 justify-center items-center lg:h-full w-full rounded-lg">
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">
-              Welcome to the Dashboard
-            </h1>
-            <button
-              onClick={handleLogout}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              Logout
-            </button>
+    <Master title="Halaman Utama">
+      <div className="bg-white h-full grid grid-cols-1 lg:grid-cols-2 justify-center w-full rounded-lg">
+        <div className="p-6">
+          <div className="flex gap-4 items-center">
+            <div className="w-20 h-20 bg-abuTua rounded-3xl"></div>
+            <div>
+              <h1 className="text-2xl font-bold leading-tight">Supriadi</h1>
+              <h6 className="leading-tight text-gray-700">Admin</h6>
+            </div>
           </div>
         </div>
       </div>
-    </>
+    </Master>
   );
 }
 
