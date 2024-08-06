@@ -17,6 +17,7 @@ import {
 } from "@heroicons/react/24/solid";
 import Head from "next/head";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 
 interface MasterProps {
   children: any;
@@ -37,9 +38,9 @@ export default function Master({ children, title }: MasterProps) {
   return (
     <div className="flex h-screen">
       <Card
-        className={`h-full ${
-          isSidebarOpen ? "w-full max-w-[20rem]" : "w-24"
-        } p-4  shadow-xl shadow-blue-gray-900/5 transition-all duration-300`}
+        className={`fixed h-full ${
+          isSidebarOpen ? "w-64" : "w-24"
+        } p-4 shadow-xl shadow-blue-gray-900/5 transition-all duration-300 z-10`}
       >
         <div className="flex mb-2 p-4 justify-between items-center">
           {isSidebarOpen && (
@@ -59,33 +60,29 @@ export default function Master({ children, title }: MasterProps) {
           </button>
         </div>
         <List>
-          <ListItem
-            className={`${isSidebarOpen ? "w-full max-w-[20rem]" : "w-12 "}`}
-          >
-            <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
-              <PresentationChartBarIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            {isSidebarOpen && "Daftar Karyawan"}
-          </ListItem>
-          <ListItem
-            className={`${isSidebarOpen ? "w-full max-w-[20rem]" : "w-12 "}`}
-          >
-            <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
-              <InboxIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            {isSidebarOpen && "Daftar absensi"}
-          </ListItem>
-          <ListItem
-            className={`${isSidebarOpen ? "w-full max-w-[20rem]" : "w-12 "}`}
-          >
+          <Link href={"/dashboard"}>
+            <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
+              <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
+                <PresentationChartBarIcon className="h-5 w-5" />
+              </ListItemPrefix>
+              {isSidebarOpen && "Daftar Karyawan"}
+            </ListItem>
+          </Link>
+          <Link href={"/daftar-absensi"}>
+            <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
+              <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
+                <InboxIcon className="h-5 w-5" />
+              </ListItemPrefix>
+              {isSidebarOpen && "Daftar absensi"}
+            </ListItem>
+          </Link>
+          <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
             <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
               <UserCircleIcon className="h-5 w-5" />
             </ListItemPrefix>
             {isSidebarOpen && "Daftar Gaji"}
           </ListItem>
-          <ListItem
-            className={`${isSidebarOpen ? "w-full max-w-[20rem]" : "w-12 "}`}
-          >
+          <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
             <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
               <Cog6ToothIcon className="h-5 w-5" />
             </ListItemPrefix>
@@ -93,7 +90,7 @@ export default function Master({ children, title }: MasterProps) {
           </ListItem>
           <ListItem
             onClick={handleLogout}
-            className={`${isSidebarOpen ? "w-full max-w-[20rem]" : "w-12 "}`}
+            className={`${isSidebarOpen ? "w-full" : "w-12 "}`}
           >
             <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
               <PowerIcon className="h-5 w-5" />
@@ -103,13 +100,19 @@ export default function Master({ children, title }: MasterProps) {
         </List>
       </Card>
 
-      <div className="flex-1 h-full">
+      <div
+        className={`flex-1 h-full ml-${
+          isSidebarOpen ? 64 : 40
+        } transition-all duration-300`}
+      >
         <Head>
           <title>{title}</title>
           <meta name="description" content="This is the dashboard page" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
-        <main className="p-6 h-full pb-20">{children}</main>
+        <main className="p-6 h-full ml-20 pb-20 overflow-auto ">
+          {children}
+        </main>
       </div>
     </div>
   );

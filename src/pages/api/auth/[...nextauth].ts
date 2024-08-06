@@ -4,6 +4,7 @@ import NextAuth from "next-auth";
 import { signOut } from "next-auth/react";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 const options: AuthOptions = {
   session: {
     strategy: "jwt",
@@ -26,9 +27,14 @@ const options: AuthOptions = {
             password: password,
           }),
         });
+
         const user = await response.json();
         if (response.ok && user.meta.statusCode === 200) {
-          return user.data;
+          // Ensure the response includes an accessToken
+          return {
+            ...user.data,
+            accessToken: user.data.accessToken,
+          };
         } else {
           return null;
         }
@@ -39,36 +45,46 @@ const options: AuthOptions = {
 
   callbacks: {
     async jwt({ token, user }: any) {
-      // the user present here gets the same data as received from DB call  made above -> fetchUserInfo(credentials.opt)
-      return { ...token, ...user };
+      // Include user in the token
+      if (user) {
+        token.accessToken = user.accessToken;
+        token.id = user.id; // Include user id if needed
+      }
+      return token;
     },
-    async session({ session, user, token }: any) {
-      session.user = user;
-      const response = await fetch(apiUrl + "/auth/profile", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token.accessToken}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: token.user.id,
-        }),
-      });
+    async session({ session, token }: any) {
+      // Pass the accessToken to the session
+      session.accessToken = token.accessToken;
+      session.user = {
+        ...session.user,
+        id: token.id, // Include other user properties if needed
+      };
 
+      // If additional API call is needed to validate or extend the session
       try {
+        const response = await fetch(apiUrl + "/auth/profile", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token.accessToken}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: token.id,
+          }),
+        });
+
         const resp = await response.json();
         if (resp.message === "Unauthenticated.") {
           signOut();
           return;
         }
-        token.user = resp.data;
+        session.user = resp.data;
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error(e);
       }
 
-      return token;
+      return session;
     },
   },
 };
