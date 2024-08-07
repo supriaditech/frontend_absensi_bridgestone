@@ -14,6 +14,7 @@ const config: Config = withMT({
         secondary: "#BA1313", // Contoh warna kustom
         customColor: "#F4F4F4", // Warna kustom tambahan
         abuTua: "#EEEEEE",
+        buttonGreen: "#00B822",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

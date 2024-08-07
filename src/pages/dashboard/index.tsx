@@ -1,11 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { getSession } from "next-auth/react";
 import { GetServerSideProps } from "next";
 import Master from "@/components/Master";
 import { ApiResponse, Karyawan } from "../../../types/dataKaryawanType";
 import { useDataKaryawan } from "../../../hooks/useDataKaryawan";
-import { Button, Card, Typography } from "@material-tailwind/react";
+import {
+  Button,
+  Card,
+  Dialog,
+  Input,
+  Typography,
+} from "@material-tailwind/react";
+import ModalAddKaryawan from "@/components/DaftarKaryawan/ModalAddKaryawan";
+import ModalEditKaryawan from "@/components/DaftarKaryawan/ModalEditKaryawan";
 import Api from "../../../service/Api";
+import ModalDeleteKaryawan from "@/components/DaftarKaryawan/ModalDeleteKaryawan";
 
 interface PageDashboardProps {
   initialData: ApiResponse;
@@ -32,27 +41,52 @@ const PageDashboard: React.FC<PageDashboardProps> = ({
   initialData,
   token,
 }) => {
-  const { dataKaryawan, isLoading, isError } = useDataKaryawan(token);
+  const {
+    dataKaryawan,
+    isLoading,
+    isError,
+    openModal,
+    setOpenModal,
+    openModalEdit,
+    setOpenModalEdit,
+    selectedKaryawan,
+    setSelectedKaryawan,
+    onEditSubmit,
+    setIdKaryawan,
+    openModalDelete,
+    setOpenModalDelete,
+    idKaryawan,
+  } = useDataKaryawan(token);
 
-  // Use initialData if dataKaryawan is undefined and ensure it's an array of Karyawan
+  const [searchQuery, setSearchQuery] = useState("");
+
   const displayedData: Karyawan[] = isKaryawanArray(dataKaryawan)
     ? dataKaryawan
     : initialData.data;
 
+  const filteredData = useMemo(() => {
+    return displayedData?.filter(
+      (karyawan) =>
+        karyawan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        karyawan.userId.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, displayedData]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(displayedData.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredData?.length / itemsPerPage);
 
   if (isLoading && !dataKaryawan) return <div>Loading...</div>;
   if (isError) return <div>Error loading data</div>;
 
-  const handleEdit = (id: number) => {
-    // Handle edit action
-    console.log(`Edit karyawan with ID ${id}`);
+  const handleEdit = (karyawan: Karyawan) => {
+    setSelectedKaryawan(karyawan);
+    setOpenModalEdit(true);
   };
 
   const handleDelete = (id: number) => {
-    // Handle delete action
+    setIdKaryawan(id);
+    setOpenModalDelete(true);
     console.log(`Delete karyawan with ID ${id}`);
   };
 
@@ -60,9 +94,8 @@ const PageDashboard: React.FC<PageDashboardProps> = ({
     setCurrentPage(page);
   };
 
-  // Calculate data to be displayed on the current page
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentData = displayedData.slice(
+  const currentData = filteredData?.slice(
     startIndex,
     startIndex + itemsPerPage
   );
@@ -77,10 +110,28 @@ const PageDashboard: React.FC<PageDashboardProps> = ({
             <h6 className="leading-tight text-gray-700">Admin</h6>
           </div>
         </div>
-        <h1 className="text-2xl font-bold mb-4 w-full text-center mt-10">
-          Data Karyawan
-        </h1>
-        <Card className="h-full w-full overflow-scroll">
+        <Card className="h-full w-full overflow-scroll p-4 border-2 my-4">
+          <h1 className="text-2xl font-bold mb-6 w-full text-center">
+            Data Karyawan
+          </h1>
+          <div className="flex justify-between gap-40 mb-4">
+            <div className="w-96">
+              <Input
+                crossOrigin={undefined}
+                label="Cari Karyawan..."
+                className="w-76"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button
+              size="sm"
+              className="mr-2 bg-buttonGreen w-60"
+              onClick={() => setOpenModal(true)}
+            >
+              Tambah Karyawan
+            </Button>
+          </div>
           <table className="w-full min-w-max table-auto text-left">
             <thead>
               <tr>
@@ -106,7 +157,6 @@ const PageDashboard: React.FC<PageDashboardProps> = ({
                 const classes = isLast
                   ? "p-4"
                   : "p-4 border-b border-blue-gray-50";
-
                 return (
                   <tr key={karyawan.id}>
                     <td className={classes}>
@@ -115,7 +165,7 @@ const PageDashboard: React.FC<PageDashboardProps> = ({
                         color="blue-gray"
                         className="font-normal"
                       >
-                        {karyawan.id}
+                        {index + 1}
                       </Typography>
                     </td>
                     <td className={classes}>
@@ -168,14 +218,14 @@ const PageDashboard: React.FC<PageDashboardProps> = ({
                         color="blue"
                         size="sm"
                         className="mr-2"
-                        onClick={() => handleEdit(karyawan.id)}
+                        onClick={() => handleEdit(karyawan)}
                       >
                         Edit
                       </Button>
                       <Button
                         color="red"
                         size="sm"
-                        onClick={() => handleDelete(karyawan.id)}
+                        onClick={() => handleDelete(karyawan?.id)}
                       >
                         Delete
                       </Button>
@@ -205,6 +255,50 @@ const PageDashboard: React.FC<PageDashboardProps> = ({
             Next
           </Button>
         </div>
+        <Dialog
+          open={openModal}
+          handler={() => setOpenModal(!openModal)}
+          animate={{
+            mount: { scale: 1, y: 0 },
+            unmount: { scale: 0.9, y: -100 },
+          }}
+          className="flex-row justify-center item-center"
+        >
+          <ModalAddKaryawan token={token} onClose={() => setOpenModal(false)} />
+        </Dialog>
+        {selectedKaryawan && (
+          <Dialog
+            open={openModalEdit}
+            handler={() => setOpenModalEdit(!openModalEdit)}
+            animate={{
+              mount: { scale: 1, y: 0 },
+              unmount: { scale: 0.9, y: -100 },
+            }}
+            className="flex-row justify-center item-center"
+          >
+            <ModalEditKaryawan
+              token={token}
+              karyawan={selectedKaryawan}
+              onClose={() => setOpenModalEdit(false)}
+              onSubmit={onEditSubmit}
+            />
+          </Dialog>
+        )}
+        <Dialog
+          open={openModalDelete}
+          handler={() => setOpenModalDelete(!openModalDelete)}
+          animate={{
+            mount: { scale: 1, y: 0 },
+            unmount: { scale: 0.9, y: -100 },
+          }}
+          className="flex-row justify-center item-center"
+        >
+          <ModalDeleteKaryawan
+            token={token}
+            onClose={() => setOpenModalDelete(false)}
+            karyawanId={idKaryawan}
+          />
+        </Dialog>
       </div>
     </Master>
   );
@@ -233,6 +327,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: {
       initialData,
       token: token,
+      session,
     },
   };
 };
