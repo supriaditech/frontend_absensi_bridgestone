@@ -32,3 +32,15 @@ export interface Karyawan {
 export interface ApiResponse {
   data: Karyawan[];
 }
+
+export interface AddKaryawanData {
+  userId: string;
+  password: string;
+  name: string;
+  dateOfBirth: string;
+  employmentStartDate: string;
+  phoneNumber: string;
+  address: string;
+  employmentStatus: string;
+  role: string;
+}
