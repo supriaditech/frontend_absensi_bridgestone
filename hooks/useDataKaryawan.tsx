@@ -20,6 +20,11 @@ const fetcher = async (url: string, token: string): Promise<ApiResponse> => {
   return data;
 };
 
+interface SubmitResult {
+  success: boolean;
+  message?: string; // optional message property
+}
+
 // Hook useDataKaryawan
 const useDataKaryawan = (token: string) => {
   const [openModal, setOpenModal] = useState(false);
@@ -29,7 +34,7 @@ const useDataKaryawan = (token: string) => {
     null
   );
   const [idKaryawan, setIdKaryawan] = useState<number>(0);
-  console.log(idKaryawan);
+
   const { data, error, mutate }: SWRResponse<ApiResponse, Error> = useSWR<
     ApiResponse,
     Error
@@ -39,6 +44,7 @@ const useDataKaryawan = (token: string) => {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<AddKaryawanData>({
     defaultValues: {
       userId: "",
@@ -55,7 +61,9 @@ const useDataKaryawan = (token: string) => {
 
   const [loading, setIsLoading] = useState<boolean>(false);
 
-  const onSubmit: SubmitHandler<AddKaryawanData> = async (data) => {
+  const onSubmit: SubmitHandler<AddKaryawanData> = async (
+    data
+  ): Promise<SubmitResult> => {
     setIsLoading(true);
     try {
       const api = new Api();
@@ -77,13 +85,15 @@ const useDataKaryawan = (token: string) => {
       toast.error("Terjadi kesalahan saat menambahkan karyawan.", {
         autoClose: 3000,
       });
-      return { success: false, error: error.message };
+      return { success: false, message: error.message };
     } finally {
       setIsLoading(false);
     }
   };
 
-  const onEditSubmit: SubmitHandler<Karyawan> = async (data) => {
+  const onEditSubmit: SubmitHandler<Karyawan> = async (
+    data
+  ): Promise<SubmitResult> => {
     setIsLoading(true);
     try {
       const api = new Api();
@@ -108,23 +118,22 @@ const useDataKaryawan = (token: string) => {
       toast.error("Terjadi kesalahan saat memperbarui karyawan.", {
         autoClose: 3000,
       });
-      return { success: false, error: error.message };
+      return { success: false, message: error.message };
     } finally {
       setIsLoading(false);
     }
   };
 
-  const deleteKaryawan = async (id: number) => {
-    setIsLoading(false);
+  const deleteKaryawan = async (id: number): Promise<SubmitResult> => {
+    setIsLoading(true);
     try {
       const api = new Api();
       api.url = "/user/delete";
       api.auth = true;
       api.token = token;
       api.body = { id: id };
+
       const response = await api.call();
-      console.log(response);
-      console.log(api.body);
       if (response.meta.statusCode === 200) {
         toast.success("Karyawan berhasil dihapus!", { autoClose: 3000 });
         setOpenModalDelete(false); // Close the modal only on success
@@ -137,11 +146,12 @@ const useDataKaryawan = (token: string) => {
       toast.error("Terjadi kesalahan saat menghapus data karyawan.", {
         autoClose: 3000,
       });
-      return { success: false, error: error.message };
+      return { success: false, message: error.message };
     } finally {
       setIsLoading(false);
     }
   };
+
   return {
     dataKaryawan: data,
     isLoading: !error && !data,
@@ -164,6 +174,7 @@ const useDataKaryawan = (token: string) => {
     setOpenModalDelete,
     deleteKaryawan,
     idKaryawan,
+    setValue,
   };
 };
 

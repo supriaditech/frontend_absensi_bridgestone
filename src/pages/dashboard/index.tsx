@@ -95,10 +95,7 @@ const PageDashboard: React.FC<PageDashboardProps> = ({
   };
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentData = filteredData?.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  const currentData = filteredData?.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <Master title="Halaman Utama">
