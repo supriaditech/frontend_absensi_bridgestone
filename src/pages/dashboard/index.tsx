@@ -152,7 +152,7 @@ const PageDashboard: React.FC<PageDashboardProps> = ({
               </tr>
             </thead>
             <tbody>
-              {currentData.map((karyawan: Karyawan, index: number) => {
+              {currentData?.map((karyawan: Karyawan, index: number) => {
                 const isLast = index === currentData.length - 1;
                 const classes = isLast
                   ? "p-4"
