@@ -82,12 +82,16 @@ export default function Master({ children, title }: MasterProps) {
             </ListItemPrefix>
             {isSidebarOpen && "Daftar Gaji"}
           </ListItem>
-          <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
-            <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
-              <Cog6ToothIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            {isSidebarOpen && "Settings"}
-          </ListItem>
+
+          <Link href={"/location"}>
+            <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
+              <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
+                <Cog6ToothIcon className="h-5 w-5" />
+              </ListItemPrefix>
+              {isSidebarOpen && "Atur Wilayah Absensi"}
+            </ListItem>
+          </Link>
+
           <ListItem
             onClick={handleLogout}
             className={`${isSidebarOpen ? "w-full" : "w-12 "}`}

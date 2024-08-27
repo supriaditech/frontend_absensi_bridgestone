@@ -35,10 +35,10 @@ const useDataKaryawan = (token: string) => {
   );
   const [idKaryawan, setIdKaryawan] = useState<number>(0);
 
-  const { data, error, mutate }: SWRResponse<ApiResponse, Error> = useSWR<
-    ApiResponse,
-    Error
-  >(["/user/all", token], fetcher.bind(null, "/user/all", token));
+  const { data, error, mutate } = useSWR<ApiResponse, Error>(
+    ["/user/all", token],
+    () => fetcher("/user/all", token)
+  );
 
   const {
     register,
@@ -61,9 +61,7 @@ const useDataKaryawan = (token: string) => {
 
   const [loading, setIsLoading] = useState<boolean>(false);
 
-  const onSubmit: SubmitHandler<AddKaryawanData> = async (
-    data
-  ): Promise<SubmitResult> => {
+  const onSubmit: SubmitHandler<AddKaryawanData> = async (data) => {
     setIsLoading(true);
     try {
       const api = new Api();
@@ -75,8 +73,8 @@ const useDataKaryawan = (token: string) => {
       const response = await api.call();
       if (response.meta.statusCode === 200) {
         toast.success("Karyawan berhasil ditambahkan!", { autoClose: 3000 });
-        setOpenModal(false); // Close the modal only on success
-        mutate(); // Refresh data
+        setOpenModal(false);
+        mutate();
         return { success: true };
       } else {
         throw new Error(response.message || "Gagal menambahkan karyawan");
@@ -91,9 +89,7 @@ const useDataKaryawan = (token: string) => {
     }
   };
 
-  const onEditSubmit: SubmitHandler<Karyawan> = async (
-    data
-  ): Promise<SubmitResult> => {
+  const onEditSubmit: SubmitHandler<Karyawan> = async (data) => {
     setIsLoading(true);
     try {
       const api = new Api();
@@ -108,8 +104,8 @@ const useDataKaryawan = (token: string) => {
       const response = await api.call();
       if (response.meta.statusCode === 200) {
         toast.success("Karyawan berhasil diperbarui!", { autoClose: 3000 });
-        setOpenModalEdit(false); // Close the modal only on success
-        mutate(); // Refresh data
+        setOpenModalEdit(false);
+        mutate();
         return { success: true };
       } else {
         throw new Error(response.message || "Gagal memperbarui karyawan");
@@ -124,7 +120,7 @@ const useDataKaryawan = (token: string) => {
     }
   };
 
-  const deleteKaryawan = async (id: number): Promise<SubmitResult> => {
+  const deleteKaryawan = async (id: number) => {
     setIsLoading(true);
     try {
       const api = new Api();
@@ -136,8 +132,8 @@ const useDataKaryawan = (token: string) => {
       const response = await api.call();
       if (response.meta.statusCode === 200) {
         toast.success("Karyawan berhasil dihapus!", { autoClose: 3000 });
-        setOpenModalDelete(false); // Close the modal only on success
-        mutate(); // Refresh data
+        setOpenModalDelete(false);
+        mutate();
         return { success: true };
       } else {
         throw new Error(response.message || "Gagal menghapus data karyawan");

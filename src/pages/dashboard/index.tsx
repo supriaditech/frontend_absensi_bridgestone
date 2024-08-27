@@ -87,7 +87,6 @@ const PageDashboard: React.FC<PageDashboardProps> = ({
   const handleDelete = (id: number) => {
     setIdKaryawan(id);
     setOpenModalDelete(true);
-    console.log(`Delete karyawan with ID ${id}`);
   };
 
   const handlePageChange = (page: number) => {

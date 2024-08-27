@@ -3,9 +3,9 @@ import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
 import * as faceapi from "face-api.js";
 import { useFaceDescriptor } from "../../hooks/useFaceDescriptor";
-import { Button } from "@material-tailwind/react";
 import { toast } from "react-toastify";
 import Master from "@/components/Master";
+import { Button } from "@material-tailwind/react";
 
 const Test: React.FC<{ token: string }> = ({ token }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -41,10 +41,7 @@ const Test: React.FC<{ token: string }> = ({ token }) => {
       });
       videoRef.current.srcObject = stream;
       await videoRef.current.play();
-      console.log("Video streaming started.");
-    } catch (error: any) {
-      console.error("Error accessing webcam:", error);
-    }
+    } catch (error: any) {}
   };
 
   const detectFace = async () => {
@@ -60,8 +57,6 @@ const Test: React.FC<{ token: string }> = ({ token }) => {
         .withFaceLandmarks()
         .withFaceExpressions();
 
-      console.log("Detections:", detections);
-
       if (detections.length > 0) {
         const face = detections[0];
         const faceDescriptor = new Float32Array([
@@ -74,14 +69,12 @@ const Test: React.FC<{ token: string }> = ({ token }) => {
         const result = await saveFaceDescriptor(1, faceDescriptor);
 
         if (result.success) {
-          console.log("Face descriptor saved successfully");
           setLoading(false);
         } else {
           console.error("Failed to save face descriptor:", result.message);
         }
       } else {
         toast.error("No face detected");
-        console.log("No face detected");
       }
     } catch (error) {
       console.error("Error detecting face:", error);
