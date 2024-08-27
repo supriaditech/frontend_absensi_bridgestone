@@ -1,12 +1,25 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
-import { MapContainer, Marker, Popup, TileLayer, Circle } from 'react-leaflet';
-import L from 'leaflet';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-// Setting default marker
-delete L.Icon.Default.prototype._getIconUrl;
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  Circle,
+  Tooltip,
+} from "react-leaflet";
+import L from "leaflet";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { Button, Input } from "@material-tailwind/react";
+import { toast } from "react-toastify";
+import { useArea } from "../../../hooks/useArea";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x.src,
@@ -14,25 +27,43 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow.src,
 });
 
-function Map() {
-  const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null);
+interface MapProps {
+  token: string;
+  initialArea: {
+    latitude: number;
+    longitude: number;
+    radius: number;
+    name: string;
+  } | null;
+}
+
+function Map({ token, initialArea }: MapProps) {
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
+    initialArea
+      ? { lat: initialArea.latitude, lng: initialArea.longitude }
+      : null
+  );
+  const [areaName, setAreaName] = useState(initialArea?.name || "");
+  const [radius, setRadius] = useState(initialArea?.radius || 50); // Default radius
+
+  const { upsertArea, loading } = useArea(token);
 
   useEffect(() => {
-    if ('geolocation' in navigator) {
+    if (!initialArea && "geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
         setLocation({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         });
       });
-    } else {
-      console.error('Geolocation is not supported by this browser.');
     }
-  }, []);
+  }, [initialArea]);
 
   const DraggableMarker = () => {
     const [draggable, setDraggable] = useState(false);
-    const [position, setPosition] = useState<L.LatLngExpression | null>(location);
+    const [position, setPosition] = useState<L.LatLngExpression | null>(
+      location
+    );
     const markerRef = useRef<L.Marker | null>(null);
 
     const eventHandlers = useMemo(
@@ -42,11 +73,11 @@ function Map() {
           if (marker != null) {
             const newPos = marker.getLatLng();
             setPosition(newPos);
-            setLocation({ lat: newPos.lat, lng: newPos.lng }); // Update the location state
+            setLocation({ lat: newPos.lat, lng: newPos.lng });
           }
         },
       }),
-      [],
+      []
     );
 
     const toggleDraggable = useCallback(() => {
@@ -57,6 +88,7 @@ function Map() {
       if (location) {
         setPosition(location);
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
 
     if (position === null) return null;
@@ -72,25 +104,45 @@ function Map() {
           <Popup minWidth={90}>
             <span onClick={toggleDraggable}>
               {draggable
-                ? 'Marker is draggable'
-                : 'Click here to make marker draggable'}
+                ? "Marker is draggable"
+                : "Klik area putih untuk menggeser marker"}
             </span>
           </Popup>
+          <Tooltip direction="top" opacity={1} permanent>
+            {draggable ? "Marker is draggable" : "Klik untuk mengaktifkan drag"}
+          </Tooltip>
         </Marker>
-        {/* Tambahkan Circle di sini dengan radius 5 km */}
-        <Circle center={position} radius={50} />
+        <Circle center={position} radius={radius} />
       </>
     );
   };
 
+  const handleSubmit = async () => {
+    if (location && areaName && radius) {
+      const result = await upsertArea({
+        name: areaName,
+        latitude: location.lat,
+        longitude: location.lng,
+        radius: radius,
+      });
+
+      if (result.success) {
+        // Handle success, if needed
+      }
+    } else {
+      toast.error("Mohon lengkapi semua data!", { autoClose: 3000 });
+    }
+  };
+
   return (
-    <div >
-      <h1>Pilih Lokasi</h1>
+    <div>
+      <h1 className="text-2xl mb-4">Pilih Lokasi</h1>
       {location ? (
         <MapContainer
           center={location}
           zoom={20}
-          style={{ height: '800px', width: '100%' }}
+          className="w-full z-0"
+          style={{ zIndex: 0, height: "80vh" }}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -101,10 +153,42 @@ function Map() {
       ) : (
         <p>Locating...</p>
       )}
+
       {location && (
-        <div>
-          <p>Latitude: {location.lat}</p>
-          <p>Longitude: {location.lng}</p>
+        <div className="flex gap-4 mt-4">
+          <Input
+            crossOrigin={undefined}
+            label="Masukan nama area"
+            className="w-full"
+            value={areaName}
+            onChange={(e) => setAreaName(e.target.value)}
+          />
+          <Input
+            crossOrigin={undefined}
+            label="Latitude"
+            className="w-full"
+            value={location.lat}
+            readOnly
+          />
+          <Input
+            crossOrigin={undefined}
+            label="Longitude"
+            className="w-full"
+            value={location.lng}
+            readOnly
+          />
+          <Input
+            crossOrigin={undefined}
+            label="Radius"
+            className="w-full"
+            type="number"
+            value={radius}
+            onChange={(e) => setRadius(Number(e.target.value))}
+          />
+
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? "Menyimpan..." : "Simpan"}
+          </Button>
         </div>
       )}
     </div>
