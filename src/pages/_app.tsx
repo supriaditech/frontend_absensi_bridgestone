@@ -4,6 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import 'leaflet/dist/leaflet.css';
 
 export default function App({
   Component,
