@@ -31,7 +31,7 @@ const Page: React.FC<Props> = () => {
 // SSR function to check for session and redirect accordingly
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
-
+  console.log(session);
   if (session) {
     return {
       redirect: {

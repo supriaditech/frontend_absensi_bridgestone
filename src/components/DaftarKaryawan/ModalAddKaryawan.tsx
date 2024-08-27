@@ -1,24 +1,42 @@
 import React from "react";
-import { Button, Input } from "@material-tailwind/react";
+import { Button, Input, Option, Select } from "@material-tailwind/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDataKaryawan } from "../../../hooks/useDataKaryawan";
+
+enum EmployeeStatus {
+  SeniorManager = "SeniorManager",
+  Manager = "Manager",
+  HeadSection = "HeadSection",
+  Assistant = "Assistant",
+  Foreman = "Foreman",
+  Manning = "Manning",
+}
 
 interface ModalAddKaryawanProps {
   token: string;
   onClose: () => void;
 }
 
+interface SubmitResult {
+  success: boolean;
+  message?: string; // optional message property
+}
+
 function ModalAddKaryawan({ token, onClose }: ModalAddKaryawanProps) {
-  const { register, handleSubmit, onSubmit, errors, loading } =
+  const { register, handleSubmit, onSubmit, errors, loading, setValue } =
     useDataKaryawan(token);
 
   const handleFormSubmit = async (data: any) => {
-    const result = await onSubmit(data);
+    const result = (await onSubmit(data)) as SubmitResult; // Explicitly cast to SubmitResult
     console.log(result);
-    if (result !== undefined) {
+    if (result.success) {
       onClose();
     }
+  };
+
+  const handleRoleChange = (value: EmployeeStatus) => {
+    setValue("employmentStatus", value);
   };
 
   return (
@@ -80,14 +98,23 @@ function ModalAddKaryawan({ token, onClose }: ModalAddKaryawanProps) {
             {...register("address", { required: "Address is required" })}
             className="mb-4"
           />
-          <Input
-            crossOrigin={undefined}
-            label="Employment Status"
-            {...register("employmentStatus", {
-              required: "Employment Status is required",
-            })}
-            className="mb-4"
-          />
+          <div className="w-full">
+            <Select
+              label="Status"
+              onChange={(value) => handleRoleChange(value as EmployeeStatus)}
+            >
+              {Object.values(EmployeeStatus).map((status) => (
+                <Option key={status} value={status}>
+                  {status}
+                </Option>
+              ))}
+            </Select>
+            {errors.role && (
+              <span className="text-red-500 text-sm">
+                {errors.role?.message}
+              </span>
+            )}
+          </div>
           <div className="flex justify-end gap-2 mt-4">
             <Button color="red" onClick={onClose} disabled={loading}>
               Batal
