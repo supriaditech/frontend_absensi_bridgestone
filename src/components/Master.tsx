@@ -1,4 +1,5 @@
 import Sidebar from "./navigation/Sidebar";
+import StickyNavbar from "./navigation/StickyNavbar";
 
 export interface MasterProps {
   children: React.ReactNode;
@@ -12,7 +13,7 @@ export default function Master({ children, title, userType }: MasterProps) {
       {userType === "ADMIN" ? (
         <Sidebar title={title}>{children}</Sidebar>
       ) : (
-        <div></div>
+        <StickyNavbar title={title}>{children}</StickyNavbar>
       )}
     </div>
   );

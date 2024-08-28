@@ -31,7 +31,6 @@ const LoginPage: React.FC<Props> = () => {
 // SSR function to check for session and redirect accordingly
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session: any = await getSession(context);
-  const userType = session?.user?.role;
 
   if (session) {
     return {
@@ -43,7 +42,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   return {
-    props: { userType }, // You can pass additional props here if needed
+    props: {}, // You can pass additional props here if needed
   };
 };
 
