@@ -17,25 +17,34 @@ const options: AuthOptions = {
       },
       async authorize(credentials: any) {
         const { userId, password } = credentials;
-        const response = await fetch(apiUrl + "/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: userId,
-            password: password,
-          }),
-        });
 
-        const user = await response.json();
-        if (response.ok && user.meta.statusCode === 200) {
-          // Ensure the response includes an accessToken
-          return {
-            ...user.data,
-            accessToken: user.data.accessToken,
-          };
-        } else {
+        try {
+          const response = await fetch(apiUrl + "/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: userId,
+              password: password,
+            }),
+          });
+
+          const user = await response.json();
+
+          if (response.ok && user.meta.statusCode === 200) {
+            // Mengembalikan objek pengguna dengan accessToken
+            return {
+              ...user.data,
+
+              accessToken: user.data.accessToken,
+              id: user.data.user.id,
+              role: user.data.user.role,
+            };
+          } else {
+            return null;
+          }
+        } catch (error) {
           return null;
         }
       },
@@ -45,22 +54,21 @@ const options: AuthOptions = {
 
   callbacks: {
     async jwt({ token, user }: any) {
-      // Include user in the token
       if (user) {
         token.accessToken = user.accessToken;
-        token.id = user.id; // Include user id if needed
+        token.id = user.id; // Menyertakan id pengguna
+        token.role = user.role; // Menambahkan role ke token
       }
       return token;
     },
+
     async session({ session, token }: any) {
-      // Pass the accessToken to the session
+      // Meneruskan accessToken ke sesi
       session.accessToken = token.accessToken;
       session.user = {
         ...session.user,
-        id: token.id, // Include other user properties if needed
+        id: token.id, // Menyertakan properti user lainnya jika diperlukan
       };
-
-      // If additional API call is needed to validate or extend the session
       try {
         const response = await fetch(apiUrl + "/auth/profile", {
           method: "POST",
@@ -75,13 +83,15 @@ const options: AuthOptions = {
         });
 
         const resp = await response.json();
+
         if (resp.message === "Unauthenticated.") {
           signOut();
           return;
         }
+
         session.user = resp.data;
       } catch (e) {
-        console.error(e);
+        console.error("Error fetching profile:", e);
       }
 
       return session;

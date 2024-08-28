@@ -5,43 +5,56 @@ import CardImage from "@/components/login/CardImage";
 import FormLogin from "@/components/login/FormLogin";
 import { getSession } from "next-auth/react";
 import { GetServerSideProps } from "next";
+import Master from "@/components/Master";
+import { ApiResponse } from "../../types/dataKaryawanType";
+import PageDashboardAdmin from "@/components/dashboard/DasboardAdmin";
+import Api from "../../service/Api";
+import { div } from "@tensorflow/tfjs";
 
 interface Props {
-  message: string;
+  token: string;
+  initialData: ApiResponse;
+  userType: string;
 }
 
-const Page: React.FC<Props> = () => {
+const Page: React.FC<Props> = ({ initialData, token, userType }) => {
   return (
-    <>
-      <Head>
-        <title>Login Page</title>
-        <meta name="description" content="This is the login page" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-      <div className="h-screen bg-customColor flex justify-center items-center px-4 sm:px-8 md:px-16 lg:px-32 xl:px-40 py-20">
-        <div className="bg-white grid grid-cols-1 md:grid-cols-2 justify-center items-center h-full w-full max-w-4xl rounded-lg shadow-lg">
-          <FormLogin />
-          <CardImage />
-        </div>
-      </div>
-    </>
+    <Master userType={userType} title={"Halaman utama"}>
+      {userType === "ADMIN" ? (
+        <PageDashboardAdmin token={token} initialData={initialData} />
+      ) : (
+        <div>sad</div>
+      )}
+    </Master>
   );
 };
 
 // SSR function to check for session and redirect accordingly
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
-  if (session) {
+  const session: any = await getSession(context);
+  if (!session) {
     return {
       redirect: {
-        destination: "/dashboard",
+        destination: "/login",
         permanent: false,
       },
     };
   }
+  const token = session?.accessToken;
+  const userType = session?.user?.role;
+  const api = new Api();
+  api.url = "/user/all";
+  api.auth = true;
+  api.token = token;
+  const initialData = await api.call();
 
   return {
-    props: {}, // You can pass additional props here if needed
+    props: {
+      initialData,
+      token: token,
+      session,
+      userType,
+    },
   };
 };
 

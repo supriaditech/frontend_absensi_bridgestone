@@ -7,7 +7,11 @@ import { toast } from "react-toastify";
 import Master from "@/components/Master";
 import { Button } from "@material-tailwind/react";
 
-const Test: React.FC<{ token: string }> = ({ token }) => {
+interface CaptureFaceProps {
+  token: string;
+  userType: string;
+}
+const CaptureFace: React.FC<CaptureFaceProps> = ({ token, userType }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { saveFaceDescriptor, loading, setLoading } = useFaceDescriptor(token);
@@ -84,7 +88,7 @@ const Test: React.FC<{ token: string }> = ({ token }) => {
   };
 
   return (
-    <Master title="Scan Wajah">
+    <Master userType={userType} title="Scan Wajah">
       <div className="flex flex-col items-center px-20 gap-10 py-10">
         <p className="text-xl font-bold">Silahkan Scan wajah anda</p>
         <video
@@ -111,13 +115,21 @@ const Test: React.FC<{ token: string }> = ({ token }) => {
   );
 };
 
-export default Test;
+export default CaptureFace;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session: any = await getSession(context);
   const token = session?.accessToken || "";
-
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+  const userType = session?.user?.role;
   return {
-    props: { token },
+    props: { token, userType },
   };
 };
