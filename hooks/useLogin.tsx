@@ -28,7 +28,7 @@ const useLogin = () => {
         redirect: false,
         userId: data.userId,
         password: data.password,
-        callbackUrl: "/dashboard",
+        callbackUrl: "/",
       });
 
       if (!signInResponse) {
@@ -40,7 +40,7 @@ const useLogin = () => {
         toast.success("Login successful!", { autoClose: 3000 }); // Menutup toast setelah 3 detik
 
         const cookies = parseCookies();
-        let nextUrl = "/dashboard";
+        let nextUrl = "/";
 
         if (cookies.nextSession) {
           const nextSessionObj = JSON.parse(cookies.nextSession);
