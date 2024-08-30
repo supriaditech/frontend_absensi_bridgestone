@@ -26,7 +26,7 @@ interface SubmitResult {
 }
 
 function ModalAddKaryawan({ token, onClose }: ModalAddKaryawanProps) {
-  const { register, handleSubmit, onSubmit, errors, loading, setValue } =
+  const { register, handleSubmit, onSubmit, errors, loading, setValue, mutate } =
     useDataKaryawan(token);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -34,6 +34,7 @@ function ModalAddKaryawan({ token, onClose }: ModalAddKaryawanProps) {
   const handleFormSubmit = async (data: any) => {
     const result = (await onSubmit(data)) as SubmitResult; // Explicitly cast to SubmitResult
     if (result.success) {
+      mutate()
       onClose();
     }
   };

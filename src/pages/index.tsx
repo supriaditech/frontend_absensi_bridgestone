@@ -3,7 +3,7 @@ import React from "react";
 import Head from "next/head";
 import CardImage from "@/components/login/CardImage";
 import FormLogin from "@/components/login/FormLogin";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { GetServerSideProps } from "next";
 import Master from "@/components/Master";
 import { ApiResponse } from "../../types/dataKaryawanType";
@@ -15,13 +15,19 @@ interface Props {
   token: string;
   initialData: ApiResponse | null;
   userType: string;
+  session: any;
 }
 
 const Page: React.FC<Props> = ({ initialData, token, userType }) => {
+  const { data: session } = useSession();
   return (
     <Master userType={userType} title={"Halaman utama"}>
       {userType === "ADMIN" ? (
-        <PageDashboardAdmin token={token} initialData={initialData} />
+        <PageDashboardAdmin
+          session={session}
+          token={token}
+          initialData={initialData}
+        />
       ) : (
         <DasboardKaryawan token={token} />
       )}
@@ -63,6 +69,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       initialData,
       token: token || "",
       userType: userType || "",
+      session,
     },
   };
 };

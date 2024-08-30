@@ -1,21 +1,22 @@
 import React, { useEffect, useRef } from "react";
 import { GetServerSideProps } from "next";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import * as faceapi from "face-api.js";
-import { useFaceDescriptor } from "../../hooks/useFaceDescriptor";
 import { toast } from "react-toastify";
 import Master from "@/components/Master";
 import { Button } from "@material-tailwind/react";
+import { useFaceDescriptor } from "../../../hooks/useFaceDescriptor";
 
 interface CaptureFaceProps {
   token: string;
-  userType: string;
+  onClose: () => void;
+  id: any;
 }
-const CaptureFace: React.FC<CaptureFaceProps> = ({ token, userType }) => {
+const CaptureFace: React.FC<CaptureFaceProps> = ({ token, onClose, id }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { saveFaceDescriptor, loading, setLoading } = useFaceDescriptor(token);
-
+  const { data: session } = useSession() as any;
   useEffect(() => {
     const loadModels = async () => {
       try {
@@ -70,9 +71,14 @@ const CaptureFace: React.FC<CaptureFaceProps> = ({ token, userType }) => {
           face.detection.box.height,
         ]);
 
-        const result = await saveFaceDescriptor(1, faceDescriptor);
+        const result = await saveFaceDescriptor(
+          session?.user?.id,
+          faceDescriptor
+        );
 
         if (result.success) {
+          onClose(); // Close the modal only on success
+
           setLoading(false);
         } else {
           console.error("Failed to save face descriptor:", result.message);
@@ -88,48 +94,29 @@ const CaptureFace: React.FC<CaptureFaceProps> = ({ token, userType }) => {
   };
 
   return (
-    <Master userType={userType} title="Scan Wajah">
-      <div className="flex flex-col items-center px-20 gap-10 py-10">
-        <p className="text-xl font-bold">Silahkan Scan wajah anda</p>
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          width="600"
-          height="600"
-          className="rounded-full object-cover"
-          style={{ aspectRatio: "1/1" }} // Ensures the video keeps a 1:1 aspect ratio
-        />
-        <canvas
-          ref={canvasRef}
-          width="600"
-          height="600"
-          style={{ display: "none" }}
-          className="bg-red-300"
-        />
-        <Button onClick={detectFace} disabled={loading} loading={loading}>
-          {loading ? "Processing..." : "Capture and Detect Face"}
-        </Button>
-      </div>
-    </Master>
+    <div className="flex flex-col items-center px-20 gap-10 py-10">
+      <p className="text-xl font-bold">Silahkan Scan wajah anda</p>
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        width="600"
+        height="600"
+        className="rounded-full object-cover"
+        style={{ aspectRatio: "1/1" }} // Ensures the video keeps a 1:1 aspect ratio
+      />
+      <canvas
+        ref={canvasRef}
+        width="600"
+        height="600"
+        style={{ display: "none" }}
+        className="bg-red-300"
+      />
+      <Button onClick={detectFace} disabled={loading} loading={loading}>
+        {loading ? "Processing..." : "Capture and Detect Face"}
+      </Button>
+    </div>
   );
 };
 
 export default CaptureFace;
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session: any = await getSession(context);
-  const token = session?.accessToken || "";
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-  const userType = session?.user?.role;
-  return {
-    props: { token, userType },
-  };
-};

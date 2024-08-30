@@ -16,9 +16,9 @@ const usePhotoProfile = (token: any) => {
     formData.append("photo", photo);
 
     // Inspect FormData entries
-    Array.from(formData.entries()).forEach(([key, value]) => {
-      console.log(`${key}:`, value);
-    });
+    // Array.from(formData.entries()).forEach(([key, value]) => {
+    //   console.log(`${key}:`, value);
+    // });
 
     setLoading(true);
     try {
@@ -30,7 +30,6 @@ const usePhotoProfile = (token: any) => {
       api.body = formData;
 
       const response = await api.call();
-      console.log("sadasdsa", response);
       if (response.meta.statusCode === 200) {
         toast.success("Photo berhasil diunggah!", { autoClose: 3000 });
         // setPhotoProfile(false); // Close the modal only on success
