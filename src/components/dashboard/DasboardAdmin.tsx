@@ -17,7 +17,7 @@ import Api from "../../../service/Api";
 import ModalDeleteKaryawan from "@/components/DaftarKaryawan/ModalDeleteKaryawan";
 
 interface PageDashboardProps {
-  initialData: ApiResponse;
+  initialData: any;
   token: string;
 }
 

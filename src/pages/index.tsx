@@ -9,11 +9,11 @@ import Master from "@/components/Master";
 import { ApiResponse } from "../../types/dataKaryawanType";
 import PageDashboardAdmin from "@/components/dashboard/DasboardAdmin";
 import Api from "../../service/Api";
-import { div } from "@tensorflow/tfjs";
+import DasboardKaryawan from "@/components/dashboard/DasboardKaryawan";
 
 interface Props {
   token: string;
-  initialData: ApiResponse;
+  initialData: ApiResponse | null;
   userType: string;
 }
 
@@ -23,7 +23,7 @@ const Page: React.FC<Props> = ({ initialData, token, userType }) => {
       {userType === "ADMIN" ? (
         <PageDashboardAdmin token={token} initialData={initialData} />
       ) : (
-        <div>sad</div>
+        <DasboardKaryawan token={token} />
       )}
     </Master>
   );
@@ -40,20 +40,29 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     };
   }
+
   const token = session?.accessToken;
   const userType = session?.user?.role;
-  const api = new Api();
-  api.url = "/user/all";
-  api.auth = true;
-  api.token = token;
-  const initialData = await api.call();
+  let initialData: ApiResponse | null = null;
+
+  if (userType === "ADMIN") {
+    const api = new Api();
+    api.url = "/user/all";
+    api.auth = true;
+    api.token = token;
+    try {
+      initialData = await api.call();
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+      initialData = null;
+    }
+  }
 
   return {
     props: {
       initialData,
-      token: token,
-      session,
-      userType,
+      token: token || "",
+      userType: userType || "",
     },
   };
 };

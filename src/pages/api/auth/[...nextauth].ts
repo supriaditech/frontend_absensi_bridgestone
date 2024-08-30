@@ -33,18 +33,29 @@ const options: AuthOptions = {
           const user = await response.json();
 
           if (response.ok && user.meta.statusCode === 200) {
-            // Mengembalikan objek pengguna dengan accessToken
+            // Mengembalikan objek pengguna dengan properti yang sesuai dengan format yang diminta
             return {
-              ...user.data,
-
-              accessToken: user.data.accessToken,
-              id: user.data.user.id,
-              role: user.data.user.role,
+              id: user.data.id,
+              userId: user.data.userId,
+              password: user.data.password,
+              name: user.data.name,
+              dateOfBirth: user.data.dateOfBirth,
+              employmentStartDate: user.data.employmentStartDate,
+              phoneNumber: user.data.phoneNumber,
+              address: user.data.address,
+              employmentStatus: user.data.employmentStatus,
+              role: user.data.role,
+              photoUrl: user.data.photoUrl,
+              faceDescriptor: user.data.faceDescriptor,
+              createdAt: user.data.createdAt,
+              updatedAt: user.data.updatedAt,
+              accessToken: user.data.accessToken, // Menyimpan accessToken jika diperlukan
             };
           } else {
             return null;
           }
         } catch (error) {
+          console.error("Authorization error:", error);
           return null;
         }
       },
@@ -55,20 +66,49 @@ const options: AuthOptions = {
   callbacks: {
     async jwt({ token, user }: any) {
       if (user) {
-        token.accessToken = user.accessToken;
-        token.id = user.id; // Menyertakan id pengguna
-        token.role = user.role; // Menambahkan role ke token
+        // Menambahkan semua properti pengguna ke dalam token
+        token = {
+          ...token,
+          accessToken: user.accessToken ?? null,
+          id: user.id ?? null,
+          userId: user.userId ?? null,
+          password: user.password ?? null,
+          name: user.name ?? null,
+          dateOfBirth: user.dateOfBirth ?? null,
+          employmentStartDate: user.employmentStartDate ?? null,
+          phoneNumber: user.phoneNumber ?? null,
+          address: user.address ?? null,
+          employmentStatus: user.employmentStatus ?? null,
+          role: user.role ?? null,
+          photoUrl: user.photoUrl ?? null,
+          faceDescriptor: user.faceDescriptor ?? null,
+          createdAt: user.createdAt ?? null,
+          updatedAt: user.updatedAt ?? null,
+        };
       }
       return token;
     },
 
     async session({ session, token }: any) {
-      // Meneruskan accessToken ke sesi
+      // Meneruskan semua properti dari token ke sesi
       session.accessToken = token.accessToken;
       session.user = {
-        ...session.user,
-        id: token.id, // Menyertakan properti user lainnya jika diperlukan
+        id: token.id,
+        userId: token.userId,
+        password: token.password,
+        name: token.name,
+        dateOfBirth: token.dateOfBirth,
+        employmentStartDate: token.employmentStartDate,
+        phoneNumber: token.phoneNumber,
+        address: token.address,
+        employmentStatus: token.employmentStatus,
+        role: token.role,
+        photoUrl: token.photoUrl,
+        faceDescriptor: token.faceDescriptor,
+        createdAt: token.createdAt,
+        updatedAt: token.updatedAt,
       };
+
       try {
         const response = await fetch(apiUrl + "/auth/profile", {
           method: "POST",
