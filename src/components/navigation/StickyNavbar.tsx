@@ -23,6 +23,7 @@ interface StickyNavbarProps {
 function StickyNavbar({ children, title }: StickyNavbarProps) {
   const [isActive, setActive] = useState("beranda");
   const { data: session } = useSession() as { data: any };
+  console.log(session);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [openNav, setOpenNav] = useState(false);
 
@@ -45,7 +46,7 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
     signOut({ callbackUrl: "/" });
   };
 
-  let photoProfile = ApiUrl + "/" + session?.user?.photoUrl;
+  let photoProfile = ApiUrl + session?.user?.photoUrl;
   const navList = (
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       {navItems.map((item) => (
@@ -121,6 +122,7 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
                       ) : (
                         <HiOutlineUser className="w-6 h-6" /> // Icon pengguna default jika photoProfile tidak ada
                       )}
+                      {session?.user?.name}
                     </button>
                     {isMenuOpen && (
                       <ul

@@ -15,16 +15,19 @@ interface Props {
   token: string;
   initialData: ApiResponse | null;
   userType: string;
-  session:any
+  session: any;
 }
 
 const Page: React.FC<Props> = ({ initialData, token, userType }) => {
-  const{data:session}= useSession()
-console.log("ini adalah",session)
+  const { data: session } = useSession();
   return (
     <Master userType={userType} title={"Halaman utama"}>
       {userType === "ADMIN" ? (
-        <PageDashboardAdmin session={session} token={token} initialData={initialData} />
+        <PageDashboardAdmin
+          session={session}
+          token={token}
+          initialData={initialData}
+        />
       ) : (
         <DasboardKaryawan token={token} />
       )}
@@ -35,7 +38,6 @@ console.log("ini adalah",session)
 // SSR function to check for session and redirect accordingly
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session: any = await getSession(context);
-  console.log(session)
   if (!session) {
     return {
       redirect: {
@@ -67,7 +69,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       initialData,
       token: token || "",
       userType: userType || "",
-      session
+      session,
     },
   };
 };

@@ -14,11 +14,10 @@ import ModalEditKaryawan from "@/components/DaftarKaryawan/ModalEditKaryawan";
 import ModalDeleteKaryawan from "@/components/DaftarKaryawan/ModalDeleteKaryawan";
 import { useSession } from "next-auth/react";
 
-
 interface PageDashboardProps {
   initialData: any;
   token: string;
-  session:any
+  session: any;
 }
 
 const TABLE_HEAD = [
@@ -31,11 +30,10 @@ const TABLE_HEAD = [
   "Actions",
 ];
 
-
-
 const PageDashboardAdmin: React.FC<PageDashboardProps> = ({
   initialData,
-  token,session
+  token,
+  session,
 }) => {
   const {
     dataKaryawan,
@@ -55,7 +53,6 @@ const PageDashboardAdmin: React.FC<PageDashboardProps> = ({
   } = useDataKaryawan(token);
 
   const [searchQuery, setSearchQuery] = useState("");
-  console.log(session)
   const [displayedData, setDisplayedData] = useState<ApiResponse>();
 
   useEffect(() => {
@@ -67,14 +64,14 @@ const PageDashboardAdmin: React.FC<PageDashboardProps> = ({
   }, [dataKaryawan, initialData.data]);
 
   const filteredData = useMemo(() => {
-    return displayedData?.data?.filter(
-      (karyawan) =>
-        karyawan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        karyawan.userId.toLowerCase().includes(searchQuery.toLowerCase())
-    ) ?? [];
+    return (
+      displayedData?.data?.filter(
+        (karyawan) =>
+          karyawan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          karyawan.userId.toLowerCase().includes(searchQuery.toLowerCase())
+      ) ?? []
+    );
   }, [searchQuery, displayedData]);
-
-
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -106,10 +103,11 @@ const PageDashboardAdmin: React.FC<PageDashboardProps> = ({
   return (
     <div className="p-6 bg-white rounded-lg">
       <div className="flex gap-4 items-center">
-        <div className="w-20 h-20 bg-abuTua rounded-3xl">   
-        </div>
+        <div className="w-20 h-20 bg-abuTua rounded-3xl"></div>
         <div>
-          <h1 className="text-2xl font-bold leading-tight">{session?.user.name}</h1>
+          <h1 className="text-2xl font-bold leading-tight">
+            {session?.user.name}
+          </h1>
           <h6 className="leading-tight text-gray-700">{session?.user.role}</h6>
         </div>
       </div>

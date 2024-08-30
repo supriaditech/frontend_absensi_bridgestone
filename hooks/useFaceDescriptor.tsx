@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import Api from "../service/Api";
+import { useSession } from "next-auth/react";
 
 interface SubmitResult {
   success: boolean;
@@ -9,7 +10,7 @@ interface SubmitResult {
 
 const useFaceDescriptor = (token: string) => {
   const [loading, setLoading] = useState(false);
-
+  const { update } = useSession();
   const saveFaceDescriptor = async (
     userId: number,
     descriptor: Float32Array
@@ -30,6 +31,7 @@ const useFaceDescriptor = (token: string) => {
         toast.success("Deskriptor wajah berhasil disimpan!", {
           autoClose: 3000,
         });
+        const result = await update();
         return { success: true };
       } else {
         throw new Error(response.message || "Gagal menyimpan deskriptor wajah");

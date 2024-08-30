@@ -12,7 +12,10 @@ function DasboardKaryawan({ token }: DasboardKaryawanProps) {
   const { modalPhotoProfile, setPhotoProfile } = usePhotoProfile(token);
   useEffect(() => {
     if (session) {
-      if (session.user.photoUrl === "") {
+      if (
+        session.user.photoUrl === "" ||
+        session.user.faceDescriptor === null
+      ) {
         // If userType is 'GURU' and there's no Guru profile
         setPhotoProfile(true);
       }
@@ -23,6 +26,7 @@ function DasboardKaryawan({ token }: DasboardKaryawanProps) {
     <div>
       DasboardKaryawan
       <Dialog
+        size="xxl"
         open={modalPhotoProfile}
         handler={() => {
           setPhotoProfile(false);
@@ -36,11 +40,11 @@ function DasboardKaryawan({ token }: DasboardKaryawanProps) {
         }}
         className="flex-row justify-center item-center"
       >
-        <div className="w-full p-4 bg-white rounded-lg shadow-lg h-96">
+        <div className="w-full p-4 bg-white rounded-lg shadow-lg ">
           <AddPhotoProfile
             token={session?.accessToken ?? ""}
             userId={session?.user?.userId ?? null}
-            id={session?.user.id ??null}
+            id={session?.user.id ?? null}
             onClose={() => {
               setPhotoProfile(false);
             }}

@@ -31,7 +31,6 @@ const options: AuthOptions = {
           });
 
           const user = await response.json();
-console.log(user)
           if (response.ok && user.meta.statusCode === 200) {
             // Mengembalikan objek pengguna dengan properti yang sesuai dengan format yang diminta
             return {
@@ -90,7 +89,6 @@ console.log(user)
     },
 
     async session({ session, token }: any) {
-      console.log(token)
       // Meneruskan semua properti dari token ke sesi
       session.accessToken = token.accessToken;
       session.user = {
@@ -124,7 +122,6 @@ console.log(user)
         });
 
         const resp = await response.json();
-
         if (resp.message === "Unauthenticated.") {
           signOut();
           return;
@@ -134,10 +131,9 @@ console.log(user)
       } catch (e) {
         console.error("Error fetching profile:", e);
       }
-      console.log(session)
       return session;
     },
-  },    
+  },
 };
 
 export default NextAuth(options);
