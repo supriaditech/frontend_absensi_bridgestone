@@ -10,6 +10,7 @@ export default function App({
   Component,
   pageProps: { session, ...pageProps },
 }: AppProps) {
+  console.log("indukkkkk",session)
   return (
     <SessionProvider session={session}>
       <ThemeProvider>

@@ -1,7 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { getSession } from "next-auth/react";
-import { GetServerSideProps } from "next";
-import Master from "@/components/Master";
+import React, { useState, useMemo, useEffect } from "react";
+
 import { ApiResponse, Karyawan } from "../../../types/dataKaryawanType";
 import { useDataKaryawan } from "../../../hooks/useDataKaryawan";
 import {
@@ -13,12 +11,14 @@ import {
 } from "@material-tailwind/react";
 import ModalAddKaryawan from "@/components/DaftarKaryawan/ModalAddKaryawan";
 import ModalEditKaryawan from "@/components/DaftarKaryawan/ModalEditKaryawan";
-import Api from "../../../service/Api";
 import ModalDeleteKaryawan from "@/components/DaftarKaryawan/ModalDeleteKaryawan";
+import { useSession } from "next-auth/react";
+
 
 interface PageDashboardProps {
   initialData: any;
   token: string;
+  session:any
 }
 
 const TABLE_HEAD = [
@@ -31,15 +31,11 @@ const TABLE_HEAD = [
   "Actions",
 ];
 
-const isKaryawanArray = (data: any): data is Karyawan[] => {
-  return (
-    Array.isArray(data) && data.every((item) => "id" in item && "name" in item)
-  );
-};
+
 
 const PageDashboardAdmin: React.FC<PageDashboardProps> = ({
   initialData,
-  token,
+  token,session
 }) => {
   const {
     dataKaryawan,
@@ -59,18 +55,26 @@ const PageDashboardAdmin: React.FC<PageDashboardProps> = ({
   } = useDataKaryawan(token);
 
   const [searchQuery, setSearchQuery] = useState("");
+  console.log(session)
+  const [displayedData, setDisplayedData] = useState<ApiResponse>();
 
-  const displayedData: Karyawan[] = isKaryawanArray(dataKaryawan)
-    ? dataKaryawan
-    : initialData.data;
+  useEffect(() => {
+    if (dataKaryawan) {
+      setDisplayedData(dataKaryawan);
+    } else {
+      setDisplayedData(initialData.data);
+    }
+  }, [dataKaryawan, initialData.data]);
 
   const filteredData = useMemo(() => {
-    return displayedData?.filter(
+    return displayedData?.data?.filter(
       (karyawan) =>
         karyawan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         karyawan.userId.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    ) ?? [];
   }, [searchQuery, displayedData]);
+
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -102,10 +106,11 @@ const PageDashboardAdmin: React.FC<PageDashboardProps> = ({
   return (
     <div className="p-6 bg-white rounded-lg">
       <div className="flex gap-4 items-center">
-        <div className="w-20 h-20 bg-abuTua rounded-3xl"></div>
+        <div className="w-20 h-20 bg-abuTua rounded-3xl">   
+        </div>
         <div>
-          <h1 className="text-2xl font-bold leading-tight">Supriadi</h1>
-          <h6 className="leading-tight text-gray-700">Admin</h6>
+          <h1 className="text-2xl font-bold leading-tight">{session?.user.name}</h1>
+          <h6 className="leading-tight text-gray-700">{session?.user.role}</h6>
         </div>
       </div>
       <Card className="h-full w-full overflow-scroll p-4 border-2 my-4">

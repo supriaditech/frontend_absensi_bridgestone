@@ -10,7 +10,6 @@ interface DasboardKaryawanProps {
 function DasboardKaryawan({ token }: DasboardKaryawanProps) {
   const { data: session } = useSession() as any;
   const { modalPhotoProfile, setPhotoProfile } = usePhotoProfile(token);
-  console.log(session);
   useEffect(() => {
     if (session) {
       if (session.user.photoUrl === "") {
@@ -41,7 +40,7 @@ function DasboardKaryawan({ token }: DasboardKaryawanProps) {
           <AddPhotoProfile
             token={session?.accessToken ?? ""}
             userId={session?.user?.userId ?? null}
-            id={session?.user.id}
+            id={session?.user.id ??null}
             onClose={() => {
               setPhotoProfile(false);
             }}

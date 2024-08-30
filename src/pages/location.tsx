@@ -8,11 +8,17 @@ const DynamicHeader = dynamic(() => import("../components/location/map"), {
   ssr: false,
 });
 
-function Location({ area, token }: { area: any; token: string }) {
-  const { data: session } = useSession() as any;
 
+interface LocationProps{
+  area:any,
+  token:string,
+  userType:string
+}
+function Location({ area, token , userType}: LocationProps) {
+  const { data: session } = useSession() as any;
+  console.log(session)
   return (
-    <Master title="Location Kantor">
+    <Master userType={userType} title="Location Kantor">
       <div className="bg-white rounded-md p-10">
         <DynamicHeader token={token} initialArea={area} />
       </div>
@@ -24,6 +30,7 @@ export default Location;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session: any = await getSession(context);
+  const userType = session?.user?.role;
 
   if (!session) {
     return {
@@ -54,7 +61,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     props: {
       token,
-      area,
+      area,userType
     },
   };
 };

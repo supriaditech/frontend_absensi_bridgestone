@@ -31,24 +31,24 @@ const options: AuthOptions = {
           });
 
           const user = await response.json();
-
+console.log(user)
           if (response.ok && user.meta.statusCode === 200) {
             // Mengembalikan objek pengguna dengan properti yang sesuai dengan format yang diminta
             return {
-              id: user.data.id,
-              userId: user.data.userId,
-              password: user.data.password,
-              name: user.data.name,
-              dateOfBirth: user.data.dateOfBirth,
-              employmentStartDate: user.data.employmentStartDate,
-              phoneNumber: user.data.phoneNumber,
-              address: user.data.address,
-              employmentStatus: user.data.employmentStatus,
-              role: user.data.role,
-              photoUrl: user.data.photoUrl,
-              faceDescriptor: user.data.faceDescriptor,
-              createdAt: user.data.createdAt,
-              updatedAt: user.data.updatedAt,
+              id: user.data.user.id,
+              userId: user.data.user.userId,
+              password: user.data.user.password,
+              name: user.data.user.name,
+              dateOfBirth: user.data.user.dateOfBirth,
+              employmentStartDate: user.data.user.employmentStartDate,
+              phoneNumber: user.data.user.phoneNumber,
+              address: user.data.user.address,
+              employmentStatus: user.data.user.employmentStatus,
+              role: user.data.user.role,
+              photoUrl: user.data.user.photoUrl,
+              faceDescriptor: user.data.user.faceDescriptor,
+              createdAt: user.data.user.createdAt,
+              updatedAt: user.data.user.updatedAt,
               accessToken: user.data.accessToken, // Menyimpan accessToken jika diperlukan
             };
           } else {
@@ -90,6 +90,7 @@ const options: AuthOptions = {
     },
 
     async session({ session, token }: any) {
+      console.log(token)
       // Meneruskan semua properti dari token ke sesi
       session.accessToken = token.accessToken;
       session.user = {
@@ -133,10 +134,10 @@ const options: AuthOptions = {
       } catch (e) {
         console.error("Error fetching profile:", e);
       }
-
+      console.log(session)
       return session;
     },
-  },
+  },    
 };
 
 export default NextAuth(options);
