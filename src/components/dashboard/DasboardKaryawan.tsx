@@ -18,6 +18,12 @@ import { MdOutlineEmojiPeople } from "react-icons/md";
 const CheckInComponent = dynamic(() => import("../absensi/CheckInComponent"), {
   ssr: false,
 });
+const CheckoutComponent = dynamic(
+  () => import("../absensi/CheckoutComponent"),
+  {
+    ssr: false,
+  }
+);
 interface DasboardKaryawanProps {
   token: string;
 }
@@ -47,7 +53,7 @@ function DasboardKaryawan({ token }: DasboardKaryawanProps) {
       label: "Checkout",
       value: "Checkout",
       icon: IoLogOutSharp,
-      desc: <div>sad</div>,
+      desc: <CheckoutComponent />,
     },
   ];
 
