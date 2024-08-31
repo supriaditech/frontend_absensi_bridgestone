@@ -1,8 +1,6 @@
 // pages/index.tsx
 import React from "react";
-import Head from "next/head";
-import CardImage from "@/components/login/CardImage";
-import FormLogin from "@/components/login/FormLogin";
+
 import { getSession, useSession } from "next-auth/react";
 import { GetServerSideProps } from "next";
 import Master from "@/components/Master";

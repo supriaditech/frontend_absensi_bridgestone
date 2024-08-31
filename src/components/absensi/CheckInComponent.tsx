@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
-import { Button } from "@material-tailwind/react";
+import { Button, Spinner } from "@material-tailwind/react";
 import { useSession } from "next-auth/react";
 import { useCheckIn } from "../../../hooks/useCheckIn";
 import { toast } from "react-toastify";
@@ -93,6 +93,7 @@ const CheckInComponent = () => {
     if (faceDescriptors.length > 0) {
       const averagedDescriptor = calculateMeanDescriptor(faceDescriptors); // Menghitung rata-rata deskriptor
       setFaceDescriptor(averagedDescriptor);
+      toast.success("Wajah berhasil di rekam");
     } else {
       toast.error("No face detected. Please try again.");
     }
@@ -124,35 +125,51 @@ const CheckInComponent = () => {
   };
 
   return (
-    <div className="check-in-component">
-      <h1>Check-In</h1>
-      <video ref={videoRef} autoPlay muted width="720" height="560" />
-      <Button onClick={handleFaceDetection} loading={loading}>
-        Detect Face
-      </Button>
-
+    <div className="check-in-component p-4 md:p-20">
       {location ? (
-        <MapContainer
-          center={location}
-          zoom={20}
-          className="w-full z-0"
-          style={{ zIndex: 0, height: "80vh" }}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        <div className="lg:flex justify-center items-center gap-4">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            width="720"
+            height="560"
+            className="rounded-md mb-4 lg:mb-0"
           />
-          <Marker position={location}>
-            <Popup>Your current location</Popup>
-          </Marker>
-        </MapContainer>
+          <MapContainer
+            center={location}
+            zoom={20}
+            className="z-0 rounded-md w-full h-[300px] md:h-[540px] lg:w-[720px]"
+            style={{ zIndex: 0 }} // Hilangkan spasi tambahan di sini
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <Marker position={location}>
+              <Popup>Your current location</Popup>
+            </Marker>
+          </MapContainer>
+        </div>
       ) : (
-        <p>Locating...</p>
+        <div className="flex flex-col justify-center items-center gap-4  p-20">
+          <Spinner className="h-12 w-12" />
+          <p>Loading...</p>
+        </div>
       )}
+      <div className="flex justify-center items-center gap-4 mt-10">
+        <Button onClick={handleFaceDetection} loading={loading}>
+          Detect Face
+        </Button>
 
-      <Button onClick={handleCheckInClick} disabled={loading}>
-        {loading ? "Checking In..." : "Check-In"}
-      </Button>
+        <Button onClick={handleCheckInClick} disabled={loading}>
+          {loading ? "Checking In..." : "Check-In"}
+        </Button>
+      </div>
+      <p className="text-center mt-2">
+        Klik Detect Face dahulu untuk merekam wajah jika sudah berhasil terekam,
+        silahkan klik Check-In
+      </p>
     </div>
   );
 };
