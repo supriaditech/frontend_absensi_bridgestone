@@ -23,7 +23,6 @@ interface StickyNavbarProps {
 function StickyNavbar({ children, title }: StickyNavbarProps) {
   const [isActive, setActive] = useState("beranda");
   const { data: session } = useSession() as { data: any };
-  console.log(session);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [openNav, setOpenNav] = useState(false);
 
