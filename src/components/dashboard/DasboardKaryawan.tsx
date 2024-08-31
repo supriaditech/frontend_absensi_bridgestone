@@ -3,7 +3,10 @@ import { usePhotoProfile } from "../../../hooks/usePhotoProfile";
 import AddPhotoProfile from "./modal/AddPhotoProfile";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
-
+import dynamic from "next/dynamic";
+const CheckInComponent = dynamic(() => import("../absensi/CheckInComponent"), {
+  ssr: false,
+});
 interface DasboardKaryawanProps {
   token: string;
 }
@@ -24,7 +27,8 @@ function DasboardKaryawan({ token }: DasboardKaryawanProps) {
 
   return (
     <div>
-      DasboardKaryawan
+      {/* <CaptureFace token={token} onClose={() => {}} id={session?.user?.id} /> */}
+      <CheckInComponent />
       <Dialog
         size="xxl"
         open={modalPhotoProfile}
