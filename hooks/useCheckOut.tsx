@@ -10,16 +10,29 @@ interface CheckOutResult {
 const useCheckOut = (token: string) => {
   const [loading, setLoading] = useState(false);
 
-  const checkOut = async (userId: number): Promise<CheckOutResult> => {
+  const checkOut = async (
+    userId: number,
+    latitude: number,
+    longitude: number,
+    faceDescriptor: Float32Array
+  ): Promise<CheckOutResult> => {
+    const test = JSON.stringify(Array.from(faceDescriptor));
+    console.log(test);
     setLoading(true);
     try {
       const api = new Api();
       api.url = "/attendance/checkout";
       api.auth = true;
       api.token = token;
-      api.body = { userId };
+      api.body = {
+        userId,
+        latitude,
+        longitude,
+        faceDescriptor: JSON.stringify(Array.from(faceDescriptor)),
+      };
 
       const response = await api.call();
+      console.log(response);
       if (response.meta.statusCode === 200) {
         toast.success("Check-out successful!", { autoClose: 3000 });
         return { success: true };
@@ -36,7 +49,7 @@ const useCheckOut = (token: string) => {
     }
   };
 
-  return { checkOut, loading };
+  return { checkOut, loading, setLoading };
 };
 
 export { useCheckOut };
