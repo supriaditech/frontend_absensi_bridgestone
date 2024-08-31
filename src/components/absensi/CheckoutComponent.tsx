@@ -24,7 +24,8 @@ const CheckoutComponent = () => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
     null
   );
-  const { checkOut, loading, setLoading } = useCheckOut(token);
+  const { checkOut, loading, setLoading, hasCheckedOut, statusLoading } =
+    useCheckOut(token);
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [faceDescriptor, setFaceDescriptor] = useState<Float32Array | null>(
@@ -157,14 +158,26 @@ const CheckoutComponent = () => {
         </div>
       )}
       <div className="flex justify-center items-center gap-4 mt-10">
-        <Button onClick={handleFaceDetection} loading={loading}>
+        <Button
+          onClick={handleFaceDetection}
+          loading={loading}
+          disabled={hasCheckedOut}
+        >
           Detect Face
         </Button>
 
-        <Button onClick={handleCheckOutClick} disabled={loading}>
+        <Button
+          onClick={handleCheckOutClick}
+          disabled={loading || hasCheckedOut}
+        >
           {loading ? "Checking Out..." : "Check-Out"}
         </Button>
       </div>
+      {hasCheckedOut && (
+        <p className="text-center mt-2 text-green-500">
+          Anda sudah check out hari ini.
+        </p>
+      )}
       <p className="text-center mt-2">
         Klik Detect Face dahulu untuk merekam wajah jika sudah berhasil terekam,
         silahkan klik Check-Out

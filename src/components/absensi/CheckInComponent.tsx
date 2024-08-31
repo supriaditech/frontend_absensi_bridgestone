@@ -24,13 +24,13 @@ const CheckInComponent = () => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
     null
   );
-  const { checkIn, loading, setLoading } = useCheckIn(token);
+  const { checkIn, loading, hasCheckedIn, statusLoading, setLoading } =
+    useCheckIn(token);
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [faceDescriptor, setFaceDescriptor] = useState<Float32Array | null>(
     null
   );
-  console.log(faceDescriptor);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -124,6 +124,15 @@ const CheckInComponent = () => {
     }
   };
 
+  if (statusLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center gap-4 p-20">
+        <Spinner className="h-12 w-12" />
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="check-in-component p-4 md:p-20">
       {location ? (
@@ -158,14 +167,23 @@ const CheckInComponent = () => {
         </div>
       )}
       <div className="flex justify-center items-center gap-4 mt-10">
-        <Button onClick={handleFaceDetection} loading={loading}>
+        <Button
+          onClick={handleFaceDetection}
+          loading={loading}
+          disabled={hasCheckedIn}
+        >
           Detect Face
         </Button>
 
-        <Button onClick={handleCheckInClick} disabled={loading}>
+        <Button onClick={handleCheckInClick} disabled={loading || hasCheckedIn}>
           {loading ? "Checking In..." : "Check-In"}
         </Button>
       </div>
+      {hasCheckedIn && (
+        <p className="text-center mt-2 text-green-500">
+          Anda sudah check in hari ini.
+        </p>
+      )}
       <p className="text-center mt-2">
         Klik Detect Face dahulu untuk merekam wajah jika sudah berhasil terekam,
         silahkan klik Check-In

@@ -15,7 +15,6 @@ const useFaceDescriptor = (token: string) => {
     userId: number,
     descriptor: Float32Array
   ): Promise<SubmitResult> => {
-    console.log(userId);
     setLoading(true);
     try {
       const api = new Api();
@@ -28,7 +27,6 @@ const useFaceDescriptor = (token: string) => {
       };
 
       const response = await api.call();
-      console.log(response);
       if (response.meta.statusCode === 200) {
         toast.success("Deskriptor wajah berhasil disimpan!", {
           autoClose: 3000,
