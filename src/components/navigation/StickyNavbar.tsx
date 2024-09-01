@@ -1,5 +1,5 @@
 import Head from "next/head";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Navbar,
   Typography,
@@ -14,17 +14,19 @@ import { MdLogout } from "react-icons/md";
 import { signOut, useSession } from "next-auth/react";
 import { ApiUrl } from "../../../config/config";
 import { toast } from "react-toastify";
+import { useRouter } from "next/router"; // Import useRouter
 
 interface StickyNavbarProps {
   title: string;
-  children: React.ReactNode; // Use React.ReactNode to indicate children
+  children: React.ReactNode;
 }
 
 function StickyNavbar({ children, title }: StickyNavbarProps) {
-  const [isActive, setActive] = useState("beranda");
   const { data: session } = useSession() as { data: any };
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [openNav, setOpenNav] = useState(false);
+
+  const router = useRouter(); // Inisialisasi useRouter
 
   const navItems = [
     { id: "beranda", label: "Beranda", path: "/" },
@@ -33,8 +35,8 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
     { id: "contact", label: "Contact", path: "/contact" },
   ];
 
-  const handleSetActive = (link: string) => {
-    setActive(link);
+  const isActive = (path: string) => {
+    return router.pathname === path;
   };
 
   const toggleMenu = () => {
@@ -51,18 +53,14 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
       {navItems.map((item) => (
         <Typography
           as="li"
-          className={` text-black text-sm text-tertiary font-semibold py-2 px-4 rounded-none border-b border-transparent ${
-            isActive === item.id
-              ? "bg-transparan text-black border-blue-500"
-              : "hover:bg-transparan hover:text-blue-300 hover:border-blue-500 text-black"
+          className={`text-black text-sm text-tertiary font-semibold py-2 px-4 rounded-none border-b border-transparent ${
+            isActive(item.path)
+              ? "bg-transparent text-black border-blue-500"
+              : "hover:bg-transparent hover:text-blue-300 hover:border-blue-500 text-black"
           }`}
           key={item.id}
         >
-          <Link
-            href={`/${item.path}`}
-            className="flex items-center"
-            onClick={() => handleSetActive(item.id)}
-          >
+          <Link href={item.path} className="flex items-center">
             {item.label}
           </Link>
         </Typography>
@@ -77,14 +75,11 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
       </Head>
       <div className="min-h-screen flex flex-col">
         <Navbar className="sticky top-0 z-50 h-max max-w-full mx-auto rounded-none px-4 py-2 lg:px-8 lg:py-4">
-          <div
-            className="flex items-center justify-between text-blue-gray-900 max-w-7xl mx-auto md:px-12 
-      "
-          >
+          <div className="flex items-center justify-between text-blue-gray-900 max-w-7xl mx-auto md:px-12">
             <Typography
               as="a"
               href={`/`}
-              className="mr-4 cursor-pointer py-1.5 font-medium "
+              className="mr-4 cursor-pointer py-1.5 font-medium"
             >
               <Image
                 src="/assets/logo/Logo.png"
@@ -94,7 +89,7 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
                 priority
               />
             </Typography>
-            <div className="lg:flex mr-4 hidden ">{navList}</div>
+            <div className="lg:flex mr-4 hidden">{navList}</div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-x-1">
                 {session?.user ? (
@@ -222,7 +217,7 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
             {navList}
             <div className="flex items-center justify-between text-gray-700 w-full">
               {!session?.user && (
-                <Link href={`login`} className="w-full ">
+                <Link href={`login`} className="w-full">
                   <Button
                     size="sm"
                     className="bg-transparent w-full shadow-none inline-block bg-gray-300 rounded-md text-gray-700 border-b border-transparent hover:border-b-1 hover:shadow-none hover:border-red-500"
