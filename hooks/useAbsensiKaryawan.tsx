@@ -14,7 +14,6 @@ const fetcher = async (url: string, token: string, userId: number) => {
 };
 
 export const useAbsensiKaryawan = (token: string, userId: number) => {
-  console.log(userId);
   const { data, error, mutate } = useSWR(
     token && userId ? ["/attendance/user", token, userId] : null,
     ([url, token, userId]) => fetcher(url, token, userId)
