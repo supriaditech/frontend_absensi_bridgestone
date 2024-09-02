@@ -115,6 +115,7 @@ function FormIzin({ token, userId }: FormIzinProps) {
               defaultValue={null}
               render={({ field }) => (
                 <Input
+                  crossOrigin={undefined}
                   type="file"
                   accept="application/pdf"
                   label="Surat Izin"
