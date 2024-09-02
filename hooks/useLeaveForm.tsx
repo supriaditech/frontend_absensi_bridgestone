@@ -1,9 +1,27 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import Api from "../service/Api";
+import useSWR from "swr";
+import { log } from "console";
 
-const useLeaveForm = (token: any) => {
+const fetcher = async (url: string, token: string, userId: number) => {
+  const api = new Api();
+  api.url = url;
+  api.auth = true;
+  //   api.body = {
+  //     userId: userId, // Masukkan userId di sini
+  //   };
+  api.token = token;
+  return api.call();
+};
+
+const useLeaveForm = (token: any, userId: number) => {
   const [loading, setLoading] = useState(false);
+
+  const { data, error, mutate } = useSWR(
+    token && userId ? ["/leave/user", token, userId] : null,
+    ([url, token, userId]) => fetcher(url, token, userId)
+  );
 
   const submitLeaveForm = async (data: any) => {
     const formData = new FormData();
@@ -49,6 +67,10 @@ const useLeaveForm = (token: any) => {
   return {
     submitLeaveForm,
     loading,
+    leaveDataUser: data?.data ?? [],
+    isLoading: !error && !data,
+    isError: error,
+    mutate,
   };
 };
 
