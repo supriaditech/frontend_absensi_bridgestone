@@ -1,48 +1,81 @@
-import React from "react";
-import { Card, Typography } from "@material-tailwind/react";
-import { useAbsensiKaryawan } from "../../../hooks/useAbsensiKaryawan";
-import { useSession } from "next-auth/react";
-import { formatToLocalTime } from "../../../utils/formatToLocalTime";
+import React, { useState } from "react";
+import { Typography, Input, Select, Option } from "@material-tailwind/react";
+import { useLeaveForm } from "../../../../hooks/useLeaveForm";
+import { formatToLocalTime } from "../../../../utils/formatToLocalTime";
 
-const TABLE_HEAD = ["ID", "Name", "Date", "Checkin", "Checkout", "Status"];
-
-interface TableAbsensiKaryawanProps {
+interface TablePemhonanIzinProps {
+  token: string;
   userId: number;
 }
 
-function TableAbsensiKaryawan({ userId }: TableAbsensiKaryawanProps) {
-  const { data: session } = useSession() as any;
-  const token = session?.accessToken;
+function TablePemhonanIzin({ token, userId }: TablePemhonanIzinProps) {
+  const { leaveDataUser, isLoading, isError } = useLeaveForm(token, userId);
+  const [searchDate, setSearchDate] = useState<string>("");
+  const [searchStatus, setSearchStatus] = useState<string>("");
 
-  const { absensiData, isLoading, isError } = useAbsensiKaryawan(token, userId);
+  const TABLE_HEAD = [
+    "ID",
+    "Name",
+    "Start Date",
+    "Lama libur",
+    "Alasan",
+    "Status",
+  ];
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading data.</div>;
-
-  // Fungsi untuk menentukan kelas berdasarkan status
   function getStatusClass(status: string): string {
     switch (status) {
-      case "Present":
+      case "Pending":
+        return "bg-gray-500 text-white";
+      case "Approved":
         return "bg-green-500 text-white";
-      case "Late":
-        return "bg-yellow-500 text-black";
-      case "Absen":
+      case "Rejected":
         return "bg-red-500 text-white";
-      case "Sakit":
-        return "bg-blue-500 text-white";
-      case "Izin":
-        return "bg-purple-500 text-white";
       default:
         return "bg-gray-500 text-white"; // Default jika status tidak dikenal
     }
   }
 
+  const filteredLeaveData = leaveDataUser?.filter((leave: any) => {
+    const formattedDate = new Date(leave.date).toISOString().split("T")[0];
+    const matchesDate = searchDate ? formattedDate === searchDate : true;
+    const matchesStatus = searchStatus ? leave.status === searchStatus : true;
+    return matchesDate && matchesStatus;
+  });
+
   return (
-    <div>
-      <Card className="h-full w-full overflow-scroll p-4 border-2 my-4">
-        <h1 className="text-2xl font-bold mb-6 w-full text-center">
-          Data Absensi Karyawan
-        </h1>
+    <div className="w-full py-10">
+      <div className="mx-20 py-10 border-2 rounded-md px-10">
+        <p className="text-center text-xl font-bold">Status Permohonan Izin</p>
+
+        <div className="my-4 flex gap-4">
+          <div>
+            <Input
+              crossOrigin={undefined}
+              label="Cari berdasarkan tanggal"
+              type="date"
+              id="searchDate"
+              value={searchDate}
+              onChange={(e) => setSearchDate(e.target.value)}
+              className="border px-2 rounded-lg"
+            />
+          </div>
+
+          <div>
+            <Select
+              id="searchStatus"
+              label="Cari berdasarkan status"
+              value={searchStatus}
+              onChange={(value: any) => setSearchStatus(value)}
+              className="border px-2 rounded-lg"
+            >
+              <Option value="">Semua</Option>
+              <Option value="Pending">Pending</Option>
+              <Option value="Approved">Approved</Option>
+              <Option value="Rejected">Rejected</Option>
+            </Select>
+          </div>
+        </div>
+
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
@@ -63,23 +96,17 @@ function TableAbsensiKaryawan({ userId }: TableAbsensiKaryawanProps) {
             </tr>
           </thead>
           <tbody>
-            {absensiData?.map((absensi: any, index: number) => {
-              const isLast = index === absensiData.length - 1;
+            {filteredLeaveData?.map((leave: any, index: number) => {
+              const isLast = index === filteredLeaveData.length - 1;
               const classes = isLast
                 ? "p-4"
                 : "p-4 border-b border-blue-gray-50";
 
-              // Format waktu secara manual ke waktu lokal
-              const formattedDate = formatToLocalTime(absensi.date);
-              const formattedCheckInTime = formatToLocalTime(
-                absensi.checkInTime
-              );
-              const formattedCheckOutTime = absensi.checkOutTime
-                ? formatToLocalTime(absensi.checkOutTime)
-                : "Not Checked Out";
-              const statusClass = getStatusClass(absensi.status);
+              const formattedDate = formatToLocalTime(leave.date);
+              const statusClass = getStatusClass(leave.status);
+
               return (
-                <tr key={absensi.id}>
+                <tr key={leave.id}>
                   <td className={classes}>
                     <Typography
                       variant="small"
@@ -95,7 +122,7 @@ function TableAbsensiKaryawan({ userId }: TableAbsensiKaryawanProps) {
                       color="blue-gray"
                       className="font-normal"
                     >
-                      {absensi.user.name}
+                      {leave.user.name}
                     </Typography>
                   </td>
                   <td className={classes}>
@@ -113,7 +140,7 @@ function TableAbsensiKaryawan({ userId }: TableAbsensiKaryawanProps) {
                       color="blue-gray"
                       className="font-normal"
                     >
-                      {formattedCheckInTime}
+                      {leave.durationDays} hari
                     </Typography>
                   </td>
                   <td className={classes}>
@@ -122,7 +149,7 @@ function TableAbsensiKaryawan({ userId }: TableAbsensiKaryawanProps) {
                       color="blue-gray"
                       className="font-normal"
                     >
-                      {formattedCheckOutTime}
+                      {leave.reason}
                     </Typography>
                   </td>
                   <td className={`${classes} text-center rounded-lg`}>
@@ -130,7 +157,7 @@ function TableAbsensiKaryawan({ userId }: TableAbsensiKaryawanProps) {
                       variant="small"
                       className={`font-normal ${statusClass} rounded-lg`}
                     >
-                      {absensi.status}
+                      {leave.status}
                     </Typography>
                   </td>
                 </tr>
@@ -138,9 +165,9 @@ function TableAbsensiKaryawan({ userId }: TableAbsensiKaryawanProps) {
             })}
           </tbody>
         </table>
-      </Card>
+      </div>
     </div>
   );
 }
 
-export default TableAbsensiKaryawan;
+export default TablePemhonanIzin;

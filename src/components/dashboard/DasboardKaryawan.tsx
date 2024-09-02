@@ -73,7 +73,7 @@ function DasboardKaryawan({ token }: DasboardKaryawanProps) {
       icon: MdSick,
       desc: (
         <div onClick={(event) => event.stopPropagation()}>
-          <FormIzin token={token} />
+          <FormIzin token={token} userId={session?.user?.id} />
         </div>
       ),
     },
