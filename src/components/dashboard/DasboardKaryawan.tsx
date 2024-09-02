@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Dialog,
   Tab,
@@ -14,9 +14,11 @@ import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FaCalendarCheck } from "react-icons/fa6";
 import { IoLogOutSharp } from "react-icons/io5";
-import { MdOutlineEmojiPeople } from "react-icons/md";
+import { MdOutlineEmojiPeople, MdSick } from "react-icons/md";
 import { useCheckIn } from "../../../hooks/useCheckIn";
 import { useCheckOut } from "../../../hooks/useCheckOut";
+import { div } from "@tensorflow/tfjs";
+import FormIzin from "../absensi/FormIzin";
 
 const CheckInComponent = dynamic(() => import("../absensi/CheckInComponent"), {
   ssr: false,
@@ -65,41 +67,66 @@ function DasboardKaryawan({ token }: DasboardKaryawanProps) {
       icon: IoLogOutSharp,
       desc: <CheckoutComponent />,
     },
+    {
+      label: "Izin/Sakit",
+      value: "izin-sakit",
+      icon: MdSick,
+      desc: (
+        <div onClick={(event) => event.stopPropagation()}>
+          <FormIzin token={token} />
+        </div>
+      ),
+    },
   ];
 
-  const handleTabChange = (value: string) => {
+  const handleTabChange = useCallback((value: string) => {
+    // Jika `value` adalah event, abaikan perubahan
+    if (typeof value !== "string") {
+      return;
+    }
     setActiveTab(value);
-  };
+  }, []);
 
   const getStatusMessage = () => {
     if (activeTab === "checkin") {
       return hasCheckedIn
         ? "Anda sudah check in hari ini."
         : "Halo kamu hari ini belum Checkin";
-    } else {
+    } else if (activeTab === "checkout") {
       return hasCheckedOut
         ? "Anda sudah checkout hari ini."
         : "Halo kamu hari ini belum Checkin atau sudah Checkout";
+    } else if (activeTab === "izin-sakit") {
+      return " Silahkan isi Form ini jika izin/sakit";
+    } else {
+      return "Status tidak dikenali.";
     }
   };
 
   const getStatusColor = () => {
     if (activeTab === "checkin") {
       return hasCheckedIn ? "bg-green-400" : "bg-red-400";
-    } else {
+    } else if (activeTab === "checkout") {
       return hasCheckedOut ? "bg-green-400" : "bg-red-400";
+    } else if (activeTab === "izin-sakit") {
+      return "bg-red-400"; // Misalnya warna kuning untuk status izin/sakit
+    } else {
+      return "bg-gray-400"; // Warna default jika status tidak dikenali
     }
   };
 
   return (
     <div>
-      <Tabs value={activeTab} onChange={handleTabChange}>
+      <Tabs
+        value={activeTab}
+        onChange={(value: string) => handleTabChange(value)} // Pastikan value diambil dari argument, bukan event
+      >
         <TabsHeader>
           {data.map(({ label, value, icon }) => (
             <Tab
               key={value}
               value={value}
-              onClick={() => handleTabChange(value)}
+              onClick={() => handleTabChange(value)} // Pastikan handleTabChange dipanggil dengan nilai tab
             >
               <div className="flex items-center gap-2">
                 {React.createElement(icon, { className: "w-5 h-5" })}
