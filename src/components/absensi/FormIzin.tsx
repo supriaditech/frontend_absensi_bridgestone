@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Select, Option, Button, Input } from "@material-tailwind/react";
 import { useLeaveForm } from "../../../hooks/useLeaveForm";
@@ -14,11 +14,29 @@ function FormIzin({ token, userId }: FormIzinProps) {
   const { data: session } = useSession() as any;
   const { handleSubmit, control } = useForm();
   const { submitLeaveForm, loading } = useLeaveForm(token, userId);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const onSubmit = async (data: any) => {
-    const result = await submitLeaveForm(data);
+    const formData = new FormData();
+
+    if (selectedFile) {
+      formData.append("document", selectedFile); // Menggunakan file yang dipilih
+    }
+
+    formData.append("date", data.date);
+    formData.append("type", data.type);
+    formData.append("durationDays", data.durationDays);
+    formData.append("reason", data.reason);
+
+    const result = await submitLeaveForm(formData); // Mengirim formData ke API
     if (result.success) {
       // Handle successful submission (e.g., clear form, redirect, etc.)
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
     }
   };
 
@@ -97,11 +115,13 @@ function FormIzin({ token, userId }: FormIzinProps) {
               defaultValue={null}
               render={({ field }) => (
                 <Input
-                  crossOrigin={undefined}
                   type="file"
-                  {...field}
                   accept="application/pdf"
                   label="Surat Izin"
+                  onChange={(e) => {
+                    handleFileChange(e);
+                    field.onChange(e.target.files); // Meng-update field form
+                  }}
                 />
               )}
             />
