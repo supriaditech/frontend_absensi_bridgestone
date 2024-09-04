@@ -60,7 +60,7 @@ function Sidebar({ children, title }: SidebarProps) {
           </button>
         </div>
         <List>
-          <Link href={"/dashboard"}>
+          <Link href={"/"}>
             <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
               <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
                 <PresentationChartBarIcon className="h-5 w-5" />
