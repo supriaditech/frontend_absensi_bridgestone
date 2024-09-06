@@ -1,28 +1,36 @@
 import React, { useState } from "react";
-import { Typography, Input, Select, Option } from "@material-tailwind/react";
+import {
+  Typography,
+  Input,
+  Select,
+  Option,
+  Button,
+} from "@material-tailwind/react";
 import { useLeaveForm } from "../../../../hooks/useLeaveForm";
 import { formatToLocalTime } from "../../../../utils/formatToLocalTime";
 
-interface TablePemhonanIzinProps {
+interface TablePemhonanIzinPropsAdmin {
   token: string;
   userId: number;
 }
 
-function TablePemhonanIzin({ token, userId }: TablePemhonanIzinProps) {
-  const { leaveDataUser, isLoadingUser, isErrorUser } = useLeaveForm(
-    token,
-    userId
-  );
+function TabelPermohonanIzinAdmin({
+  token,
+  userId,
+}: TablePemhonanIzinPropsAdmin) {
+  const { leaveDataAllUser } = useLeaveForm(token, userId);
   const [searchDate, setSearchDate] = useState<string>("");
   const [searchStatus, setSearchStatus] = useState<string>("");
 
   const TABLE_HEAD = [
     "ID",
+    "User ID",
     "Name",
     "Start Date",
     "Lama libur",
     "Alasan",
     "Status",
+    "Action",
   ];
 
   function getStatusClass(status: string): string {
@@ -38,7 +46,7 @@ function TablePemhonanIzin({ token, userId }: TablePemhonanIzinProps) {
     }
   }
 
-  const filteredLeaveData = leaveDataUser?.filter((leave: any) => {
+  const filteredLeaveData = leaveDataAllUser?.filter((leave: any) => {
     const formattedDate = new Date(leave.date).toISOString().split("T")[0];
     const matchesDate = searchDate ? formattedDate === searchDate : true;
     const matchesStatus = searchStatus ? leave.status === searchStatus : true;
@@ -125,6 +133,15 @@ function TablePemhonanIzin({ token, userId }: TablePemhonanIzinProps) {
                       color="blue-gray"
                       className="font-normal"
                     >
+                      {leave.user.userId}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
                       {leave.user.name}
                     </Typography>
                   </td>
@@ -163,6 +180,14 @@ function TablePemhonanIzin({ token, userId }: TablePemhonanIzinProps) {
                       {leave.status}
                     </Typography>
                   </td>
+                  <td
+                    className={`${classes} text-center rounded-lg flex gap-4`}
+                  >
+                    <Button size="sm" className="bg-blue-400">
+                      Approve
+                    </Button>
+                    <Button size="sm">Riject</Button>
+                  </td>
                 </tr>
               );
             })}
@@ -173,4 +198,4 @@ function TablePemhonanIzin({ token, userId }: TablePemhonanIzinProps) {
   );
 }
 
-export default TablePemhonanIzin;
+export default TabelPermohonanIzinAdmin;

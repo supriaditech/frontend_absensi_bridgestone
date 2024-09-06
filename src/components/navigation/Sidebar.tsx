@@ -19,6 +19,7 @@ import Head from "next/head";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { MasterProps } from "../Master";
+import { BsFillEnvelopePaperFill } from "react-icons/bs";
 
 interface SidebarProps {
   title: string;
@@ -89,6 +90,15 @@ function Sidebar({ children, title }: SidebarProps) {
                 <Cog6ToothIcon className="h-5 w-5" />
               </ListItemPrefix>
               {isSidebarOpen && "Atur Wilayah Absensi"}
+            </ListItem>
+          </Link>
+
+          <Link href={"/permohonan-izin"}>
+            <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
+              <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
+                <BsFillEnvelopePaperFill className="h-4 w-4" />
+              </ListItemPrefix>
+              {isSidebarOpen && "Periksa Pemohonan Izin"}
             </ListItem>
           </Link>
 
