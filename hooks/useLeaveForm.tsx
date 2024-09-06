@@ -13,9 +13,26 @@ const fetcher = async (url: string, token: string, userId: number) => {
 
 const useLeaveForm = (token: any, userId: number) => {
   const [loading, setLoading] = useState(false);
-
-  const { data, error, mutate } = useSWR(
+  const [modalAction, setModalAction] = useState(false);
+  const [valueAction, setValueAction] = useState("");
+  console.log(valueAction);
+  // Fetch data untuk user tertentu
+  const {
+    data,
+    error,
+    mutate: mutateUser,
+  } = useSWR(
     token && userId ? ["/leave/user", token, userId] : null,
+    ([url, token, userId]) => fetcher(url, token, userId)
+  );
+
+  // Fetch data untuk semua user
+  const {
+    data: dataAllUser,
+    error: errorAllUser,
+    mutate: mutateAllUser,
+  } = useSWR(
+    token && userId ? ["/leave/all", token, userId] : null,
     ([url, token, userId]) => fetcher(url, token, userId)
   );
 
@@ -35,7 +52,47 @@ const useLeaveForm = (token: any, userId: number) => {
           "Izin berhasil diajukan! Silahkan cek izin anda di setujui atau tidak",
           { autoClose: 3000 }
         );
-        mutate();
+        mutateUser();
+        mutateAllUser(); // Mutasi untuk semua user
+        return { success: true };
+      } else {
+        throw new Error(response.meta.message || "Gagal mengajukan izin");
+      }
+    } catch (error: any) {
+      toast.error(
+        "Terjadi kesalahan saat mengajukan izin, Silahkan cek apakah izin sudah pernah dibuat di tanggal ini",
+        {
+          autoClose: 3000,
+        }
+      );
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApiAction = async (id: any) => {
+    setLoading(true);
+    try {
+      const api = new Api();
+      api.url = valueAction === "Approved" ? "/leave/approve" : "/leave/reject";
+      api.auth = true;
+      api.token = token;
+      api.body = {
+        id,
+      };
+
+      const response = await api.call();
+      console.log(response);
+      if (response.meta.statusCode === 200) {
+        if (valueAction === "Approved") {
+          toast.success("Izin berhasil disetujui", { autoClose: 3000 });
+        } else {
+          toast.success("Izin berhasil ditolak", { autoClose: 3000 });
+        }
+        setModalAction(false);
+        mutateUser();
+        mutateAllUser(); // Mutasi untuk semua user
         return { success: true };
       } else {
         throw new Error(response.meta.message || "Gagal mengajukan izin");
@@ -57,9 +114,18 @@ const useLeaveForm = (token: any, userId: number) => {
     submitLeaveForm,
     loading,
     leaveDataUser: data?.data ?? [],
-    isLoading: !error && !data,
-    isError: error,
-    mutate,
+    leaveDataAllUser: dataAllUser?.data ?? [], // Data untuk semua user
+    isLoadingUser: !error && !data,
+    isLoadingAllUser: !errorAllUser && !dataAllUser,
+    isErrorUser: error,
+    isErrorAllUser: errorAllUser,
+    mutateUser,
+    mutateAllUser,
+    modalAction,
+    setModalAction,
+    valueAction,
+    setValueAction,
+    handleApiAction,
   };
 };
 
