@@ -5,9 +5,12 @@ import {
   Select,
   Option,
   Button,
+  Dialog,
 } from "@material-tailwind/react";
 import { useLeaveForm } from "../../../../hooks/useLeaveForm";
 import { formatToLocalTime } from "../../../../utils/formatToLocalTime";
+import Image from "next/image";
+import { ToastContainer } from "react-toastify";
 
 interface TablePemhonanIzinPropsAdmin {
   token: string;
@@ -18,9 +21,18 @@ function TabelPermohonanIzinAdmin({
   token,
   userId,
 }: TablePemhonanIzinPropsAdmin) {
-  const { leaveDataAllUser } = useLeaveForm(token, userId);
+  const {
+    leaveDataAllUser,
+    modalAction,
+    setModalAction,
+    valueAction,
+    setValueAction,
+    handleApiAction,
+  } = useLeaveForm(token, userId);
   const [searchDate, setSearchDate] = useState<string>("");
   const [searchStatus, setSearchStatus] = useState<string>("");
+  const [idIzin, setIdIzin] = useState<Number | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const TABLE_HEAD = [
     "ID",
@@ -50,9 +62,21 @@ function TabelPermohonanIzinAdmin({
     const formattedDate = new Date(leave.date).toISOString().split("T")[0];
     const matchesDate = searchDate ? formattedDate === searchDate : true;
     const matchesStatus = searchStatus ? leave.status === searchStatus : true;
-    return matchesDate && matchesStatus;
+
+    // Check if the searchTerm matches either the user's name or userId
+    const matchesNameOrId = searchTerm
+      ? leave.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        leave.user.userId.toString().includes(searchTerm)
+      : true;
+
+    return matchesDate && matchesStatus && matchesNameOrId;
   });
 
+  const handleAction = (value: string, id: number) => {
+    setIdIzin(id);
+    setValueAction(value);
+    setModalAction(true);
+  };
   return (
     <div className="w-full py-10">
       <div className="mx-20 py-10 border-2 rounded-md px-10">
@@ -70,7 +94,16 @@ function TabelPermohonanIzinAdmin({
               className="border px-2 rounded-lg"
             />
           </div>
-
+          <div>
+            <Input
+              crossOrigin={undefined}
+              label="Cari karyawan..."
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border px-2 rounded-lg"
+            />
+          </div>
           <div>
             <Select
               id="searchStatus"
@@ -183,10 +216,22 @@ function TabelPermohonanIzinAdmin({
                   <td
                     className={`${classes} text-center rounded-lg flex gap-4`}
                   >
-                    <Button size="sm" className="bg-blue-400">
-                      Approve
+                    <Button
+                      size="sm"
+                      className="bg-blue-400"
+                      disabled={leave.status === "Approved" ? true : false}
+                      onClick={() => handleAction("Approved", leave.id)}
+                    >
+                      Approved
                     </Button>
-                    <Button size="sm">Riject</Button>
+                    <Button
+                      size="sm"
+                      className="bg-red-400"
+                      onClick={() => handleAction("Rejected", leave.id)}
+                      disabled={leave.status === "Rejected" ? true : false}
+                    >
+                      Rejected
+                    </Button>
                   </td>
                 </tr>
               );
@@ -194,6 +239,56 @@ function TabelPermohonanIzinAdmin({
           </tbody>
         </table>
       </div>
+      <Dialog
+        open={modalAction}
+        handler={() => setModalAction(!modalAction)}
+        animate={{
+          mount: { scale: 1, y: 0 },
+          unmount: { scale: 0.9, y: -100 },
+        }}
+        className="flex-row justify-center item-center"
+      >
+        <div className="p-20 flex flex-col justify-center items-center">
+          <Image
+            src={"/assets/dataKaryawan/permission.png"}
+            width={200}
+            height={200}
+            alt="Ilustrasi"
+          />
+          <p className="my-4 text-lg font-bold text-black">
+            Apakah anda yakin ingin {valueAction} izin ini
+          </p>
+          <div className="flex gap-6 justify-center items-center">
+            <Button
+              size="sm"
+              className={
+                valueAction === "Approved" ? `bg-blue-400` : `bg-red-400`
+              }
+              onClick={() => handleApiAction(idIzin ?? null)}
+            >
+              {valueAction}
+            </Button>
+            <Button
+              size="sm"
+              className="bg-black"
+              onClick={() => setModalAction(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }
