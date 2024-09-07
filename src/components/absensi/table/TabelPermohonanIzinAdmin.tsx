@@ -11,6 +11,8 @@ import { useLeaveForm } from "../../../../hooks/useLeaveForm";
 import { formatToLocalTime } from "../../../../utils/formatToLocalTime";
 import Image from "next/image";
 import { ToastContainer } from "react-toastify";
+import Link from "next/link";
+import { ApiUrl } from "../../../../config/config";
 
 interface TablePemhonanIzinPropsAdmin {
   token: string;
@@ -41,6 +43,7 @@ function TabelPermohonanIzinAdmin({
     "Start Date",
     "Lama libur",
     "Alasan",
+    "Surat",
     "Status",
     "Action",
   ];
@@ -71,7 +74,7 @@ function TabelPermohonanIzinAdmin({
 
     return matchesDate && matchesStatus && matchesNameOrId;
   });
-
+  console.log(filteredLeaveData);
   const handleAction = (value: string, id: number) => {
     setIdIzin(id);
     setValueAction(value);
@@ -205,10 +208,25 @@ function TabelPermohonanIzinAdmin({
                       {leave.reason}
                     </Typography>
                   </td>
+                  <td className={classes}>
+                    <Link
+                      href={ApiUrl + "/" + leave.documentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Typography
+                        variant="small"
+                        color="blue-gray"
+                        className="font-normal bg-blue-500 px-4 flex justify-center items-center rounded-md text-white"
+                      >
+                        Lihat Surat
+                      </Typography>
+                    </Link>
+                  </td>
                   <td className={`${classes} text-center rounded-lg`}>
                     <Typography
                       variant="small"
-                      className={`font-normal ${statusClass} rounded-lg`}
+                      className={`font-normal px-4 ${statusClass} rounded-lg`}
                     >
                       {leave.status}
                     </Typography>

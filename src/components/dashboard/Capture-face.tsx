@@ -18,7 +18,6 @@ const CaptureFace: React.FC<CaptureFaceProps> = ({ token, onClose, id }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { saveFaceDescriptor, loading, setLoading } = useFaceDescriptor(token);
   const { data: session } = useSession() as any;
-
   useEffect(() => {
     const loadModels = async () => {
       try {
@@ -78,7 +77,7 @@ const CaptureFace: React.FC<CaptureFaceProps> = ({ token, onClose, id }) => {
         session?.user?.id,
         averagedDescriptor
       );
-
+console.log(result)
       if (result.success) {
         onClose(); // Close the modal only on success
       } else {
@@ -114,15 +113,15 @@ const CaptureFace: React.FC<CaptureFaceProps> = ({ token, onClose, id }) => {
   };
 
   return (
-    <div className="flex flex-col items-center px-20 gap-10 py-10">
-      <p className="text-xl font-bold">Silahkan Scan wajah anda</p>
+    <div className="flex flex-col items-center px-20 gap-5 py-5">
+      <p className="text-xl font-bold text-center">Silahkan Scan wajah anda</p>
       <video
         ref={videoRef}
         autoPlay
         muted
-        width="600"
-        height="600"
-        className="rounded-full object-cover"
+        // width="400"
+        // height="400"
+        className="rounded-full object-cover w-full h-full xl:w-3/5 2xl:w-full"
         style={{ aspectRatio: "1/1" }} // Ensures the video keeps a 1:1 aspect ratio
       />
       <canvas
