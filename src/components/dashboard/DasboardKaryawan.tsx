@@ -165,7 +165,7 @@ function DasboardKaryawan({ token }: DasboardKaryawanProps) {
         }}
         className="flex-row justify-center item-center"
       >
-        <div className="w-full p-4 bg-white rounded-lg shadow-lg">
+        <div className="w-full h-screen p-4 bg-white rounded-lg shadow-lg flex justify-center items-center">
           <AddPhotoProfile
             token={session?.accessToken ?? ""}
             userId={session?.user?.userId ?? null}

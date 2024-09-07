@@ -46,14 +46,14 @@ const AddPhotoProfile: React.FC<AddPhotoProfileProps> = ({
       toast.error("Pilih foto terlebih dahulu.", { autoClose: 3000 });
     }
   };
-
+console.log(session)
   return (
     <div className="flex flex-col items-center justify-center p-4 ">
       <h2 className="text-2xl font-bold mb-5 text-center text-black">
         Lengkapi Profile Anda
       </h2>
-      {session.user.photoUrl === null && (
-        <div className="relative w-32 h-32 mb-4 ">
+      {session.user.photoUrl === "" && (
+        <div className="relative w-72 h-72 mb-4 ">
           <div className="relative rounded-full w-full h-full overflow-hidden bg-gray-500">
             {previewUrl && (
               <Image
@@ -75,7 +75,7 @@ const AddPhotoProfile: React.FC<AddPhotoProfileProps> = ({
             />
             <label htmlFor="file-upload">
               <p
-                className="absolute bottom-2 right-5 transform translate-y-1/2 translate-x-1/2 rounded-full bg-green-500 w-10 h-10 text-white text-2xl flex items-center justify-center"
+                className="absolute bottom-4 right-16 transform translate-y-1/2 translate-x-1/2 rounded-full bg-green-500 w-14 h-14 text-white text-2xl flex items-center justify-center"
                 style={{ zIndex: 10 }}
               >
                 +
@@ -97,7 +97,7 @@ const AddPhotoProfile: React.FC<AddPhotoProfileProps> = ({
         </div>
       )}
 
-      {session.user.photoUrl !== null &&
+      {session.user.photoUrl !== "" &&
         session.user.faceDescriptor === null && (
           <CaptureFace token={token} onClose={onClose} id={id} />
         )}
