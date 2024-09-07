@@ -74,7 +74,7 @@ function TabelPermohonanIzinAdmin({
 
     return matchesDate && matchesStatus && matchesNameOrId;
   });
-console.log(filteredLeaveData)
+  console.log(filteredLeaveData);
   const handleAction = (value: string, id: number) => {
     setIdIzin(id);
     setValueAction(value);
@@ -209,13 +209,19 @@ console.log(filteredLeaveData)
                     </Typography>
                   </td>
                   <td className={classes}>
-                  <Link href={ApiUrl+"/"+leave.documentUrl} target="_blank" rel="noopener noreferrer">
-                    <Typography variant="small" color="blue-gray" className="font-normal">
-                      Lihat Surat
-                    </Typography>
-                  </Link>
-
-
+                    <Link
+                      href={ApiUrl + "/" + leave.documentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Typography
+                        variant="small"
+                        color="blue-gray"
+                        className="font-normal bg-blue-500 px-4 flex justify-center items-center rounded-md text-white"
+                      >
+                        Lihat Surat
+                      </Typography>
+                    </Link>
                   </td>
                   <td className={`${classes} text-center rounded-lg`}>
                     <Typography
