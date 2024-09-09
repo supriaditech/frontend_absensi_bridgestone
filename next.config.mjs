@@ -1,12 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
-      domains: [
-        "localhost",
-        "https://www.youtube.com/embed/",
-        "https://play.google.com/","http://localhost:3002/"
-      ],
-    },
-  };
+  images: {
+    domains: [
+      "localhost", // For localhost development
+      "youtube.com", // For YouTube embeds (only domain)
+      "play.google.com", // For Google Play (only domain)
+    ],
+  },
+};
 
 export default nextConfig;

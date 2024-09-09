@@ -40,7 +40,7 @@ function Sidebar({ children, title }: SidebarProps) {
     <div className="flex h-screen">
       <Card
         className={`fixed h-full ${
-          isSidebarOpen ? "w-64" : "w-24"
+          isSidebarOpen ? "w-64" : "w-24 "
         } p-4 shadow-xl shadow-blue-gray-900/5 transition-all duration-300 z-10`}
       >
         <div className="flex mb-2 p-4 justify-between items-center">
@@ -60,16 +60,24 @@ function Sidebar({ children, title }: SidebarProps) {
             )}
           </button>
         </div>
-        <List>
-          <Link href={"/"}>
-            <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
-              <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
+
+        <div
+          className={`w-w-full flex flex-col justify-center gap-4 ${
+            isSidebarOpen ? "w-full" : " items-center "
+          } `}
+        >
+          <Link className={`${isSidebarOpen ? "w-full" : "w-12 "} `} href={"/"}>
+            <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "} `}>
+              <ListItemPrefix className={`${!isSidebarOpen && "m-auto "} `}>
                 <PresentationChartBarIcon className="h-5 w-5" />
               </ListItemPrefix>
               {isSidebarOpen && "Daftar Karyawan"}
             </ListItem>
           </Link>
-          <Link href={"/daftar-absensi"}>
+          <Link
+            className={`${isSidebarOpen ? "w-full" : "w-12 "}`}
+            href={"/daftar-absensi"}
+          >
             <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
               <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
                 <InboxIcon className="h-5 w-5" />
@@ -77,14 +85,23 @@ function Sidebar({ children, title }: SidebarProps) {
               {isSidebarOpen && "Daftar absensi"}
             </ListItem>
           </Link>
-          <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
-            <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
-              <UserCircleIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            {isSidebarOpen && "Daftar Gaji"}
-          </ListItem>
 
-          <Link href={"/location"}>
+          <Link
+            className={`${isSidebarOpen ? "w-full" : "w-12 "}`}
+            href={"/daftar-gaji"}
+          >
+            <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
+              <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
+                <UserCircleIcon className="h-5 w-5" />
+              </ListItemPrefix>
+              {isSidebarOpen && "Daftar Gaji"}
+            </ListItem>
+          </Link>
+
+          <Link
+            className={`${isSidebarOpen ? "w-full" : "w-12 "}`}
+            href={"/location"}
+          >
             <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
               <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
                 <Cog6ToothIcon className="h-5 w-5" />
@@ -93,7 +110,10 @@ function Sidebar({ children, title }: SidebarProps) {
             </ListItem>
           </Link>
 
-          <Link href={"/permohonan-izin"}>
+          <Link
+            className={`${isSidebarOpen ? "w-full" : "w-12 "}`}
+            href={"/permohonan-izin"}
+          >
             <ListItem className={`${isSidebarOpen ? "w-full" : "w-12 "}`}>
               <ListItemPrefix className={`${!isSidebarOpen && "m-auto "}`}>
                 <BsFillEnvelopePaperFill className="h-4 w-4" />
@@ -111,7 +131,7 @@ function Sidebar({ children, title }: SidebarProps) {
             </ListItemPrefix>
             {isSidebarOpen && "Log Out"}
           </ListItem>
-        </List>
+        </div>
       </Card>
 
       <div
