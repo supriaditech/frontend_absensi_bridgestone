@@ -31,6 +31,11 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
   const navItems = [
     { id: "beranda", label: "Beranda", path: "/" },
     { id: "riwayatAbsen", label: "Riwayat Absensi", path: "/riwayat-absensi" },
+    {
+      id: "riwayatGaji",
+      label: "Riwayat Gaji",
+      path: "/riwayat-gaji-karyawan",
+    },
     { id: "profile", label: "Profil", path: "/profil" },
     { id: "contact", label: "Contact", path: "/contact" },
   ];
