@@ -28,7 +28,7 @@ function TabelDaftarGajiAdmin({ userId, token }: TabelDaftarGajiAdminProps) {
     "Tahun",
     "Jlh. Absen",
     "Jlh. Izin",
-    "Jlh. Sakit",
+    "Jlh. Late",
     "Gaji Harian",
     "Gaji Awal",
     "Potongan",
@@ -162,13 +162,6 @@ function TabelDaftarGajiAdmin({ userId, token }: TabelDaftarGajiAdminProps) {
               const classes = isLast
                 ? "p-4"
                 : "p-4 border-b border-blue-gray-50";
-
-              // Format waktu secara manual ke waktu lokal
-              const formattedDate = formatToLocalTime(gaji.date);
-              const formattedCheckInTime = formatToLocalTime(gaji.checkInTime);
-              const formattedCheckOutTime = gaji.checkOutTime
-                ? formatToLocalTime(gaji.checkOutTime)
-                : "Not Checked Out";
 
               // Dapatkan nama bulan dari angka bulan
               const monthLabel = getMonthLabel(gaji.month);
