@@ -36,7 +36,7 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
       label: "Riwayat Gaji",
       path: "/riwayat-gaji-karyawan",
     },
-    { id: "profile", label: "Profil", path: "/profil" },
+    { id: "profile", label: "Profil", path: "/profile" },
     { id: "contact", label: "Contact", path: "/contact" },
   ];
 
