@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDaftarGajiKaryawan } from "../../../hooks/useGajiKaryawan";
 import { MONTHS } from "../../../types/month";
 import { Input, Option, Select } from "@material-tailwind/react";
-
+import { jsPDF } from "jspdf";
 interface GajiKaryawanProps {
   token: string;
 }
@@ -12,7 +12,7 @@ function GajiKaryawan({ token }: GajiKaryawanProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchMonth, setSearchMonth] = useState<string>("");
   const [searchYear, setSearchYear] = useState<string>("Semua Tahun");
-
+  console.log(gajiData);
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading data.</div>;
 
@@ -44,6 +44,145 @@ function GajiKaryawan({ token }: GajiKaryawanProps) {
 
     return matchesName && matchesMonth && matchesYear;
   });
+
+  const generatePDF = (gaji: any) => {
+    const doc = new jsPDF();
+
+    // Header
+
+    doc.setFontSize(12);
+    doc.text("PT. MAJU JAYA ABADI", 20, 30);
+    doc.setFontSize(10);
+    doc.text("Jl. Sudirman no. 143", 20, 35);
+
+    // Informasi Karyawan dan Periode
+    doc.setFontSize(10);
+    doc.text("Periode  :", 120, 30);
+    doc.text(`${getMonthLabel(gaji.month)} ${gaji.year}`, 150, 30);
+    doc.text("Nama Karyawan :", 120, 35);
+    doc.text(gaji.user.name, 150, 35);
+    doc.text("Jabatan :", 120, 40);
+    doc.text(gaji.user.employmentStatus, 150, 40);
+    doc.text("Status  :", 120, 45);
+    doc.text("Karyawan Tetap", 150, 45);
+
+    // Garis pemisah
+    doc.line(20, 50, 190, 50);
+
+    // PENERIMAAN
+    doc.setFontSize(10);
+    doc.text("PENERIMAAN", 20, 55);
+    let yPosition = 60;
+    doc.text("Gaji Pokok", 30, yPosition);
+    doc.text(`Rp ${gaji.initialSalary.toLocaleString()}`, 170, yPosition, {
+      align: "right",
+    });
+    yPosition += 5;
+
+    // Tambahkan rincian penerimaan lainnya jika ada
+    doc.text("Tunjangan", 30, yPosition);
+    doc.text("Rp 0", 170, yPosition, { align: "right" });
+    yPosition += 5;
+
+    doc.text("Bonus", 30, yPosition);
+    doc.text("Rp 0", 170, yPosition, { align: "right" });
+    yPosition += 5;
+
+    doc.line(20, yPosition, 190, yPosition);
+    yPosition += 5;
+
+    doc.text("Total Penghasilan Bruto", 30, yPosition);
+    doc.text(`Rp ${gaji.initialSalary.toLocaleString()}`, 170, yPosition, {
+      align: "right",
+    });
+
+    // Garis pemisah
+    yPosition += 10;
+    doc.line(20, yPosition, 190, yPosition);
+    yPosition += 5;
+
+    // PENGURANGAN
+    doc.text("PENGURANGAN", 20, yPosition);
+    yPosition += 5;
+
+    doc.text("Permohonan Izin", 30, yPosition);
+    doc.text(
+      `${gaji.attendanceStats.Izin.toLocaleString()} hari`,
+      170,
+      yPosition,
+      {
+        align: "right",
+      }
+    );
+    yPosition += 5;
+
+    doc.text("Permohonan Sakit", 30, yPosition);
+    doc.text(
+      `${gaji.attendanceStats.Sakit.toLocaleString()} hari`,
+      170,
+      yPosition,
+      {
+        align: "right",
+      }
+    );
+    yPosition += 5;
+
+    doc.text("Permohonan Absen", 30, yPosition);
+    doc.text(
+      `${gaji.attendanceStats.Absen.toLocaleString()} hari`,
+      170,
+      yPosition,
+      {
+        align: "right",
+      }
+    );
+    yPosition += 5;
+
+    doc.line(20, yPosition, 190, yPosition);
+    yPosition += 5;
+
+    // Total pengurangan
+    doc.text("Total Pengurangan (B)", 30, yPosition);
+    doc.text(
+      `Rp ${gaji.totalMonthlyDeductions.toLocaleString()}`,
+      170,
+      yPosition,
+      {
+        align: "right",
+      }
+    );
+
+    // Garis pemisah
+    yPosition += 10;
+    doc.line(20, yPosition, 190, yPosition);
+    yPosition += 5;
+
+    // TOTAL DITERIMA
+    doc.text("TOTAL DITERIMA KARYAWAN", 20, yPosition);
+    doc.text(`Rp ${gaji.totalSalary.toLocaleString()}`, 170, yPosition, {
+      align: "right",
+    });
+
+    // Tambahkan tanggal dan tanda tangan
+    yPosition += 20;
+    const currentDate = new Date();
+    const formattedDate = `Medan, ${currentDate.getDate()} ${getMonthLabel(
+      currentDate.getMonth() + 1
+    )} ${currentDate.getFullYear()}`;
+
+    doc.text(formattedDate, 140, yPosition); // Cetak tanggal
+    yPosition += 5;
+    doc.text("Manager HRD", 140, yPosition);
+    yPosition += 15; // Spasi untuk tanda tangan
+    doc.text("(Nama Manager)", 140, yPosition);
+
+    // Save the PDF
+    doc.save(
+      `Slip_Gaji_${gaji.user.name}_${getMonthLabel(gaji.month)}_${
+        gaji.year
+      }.pdf`
+    );
+  };
 
   return (
     <div className="p-10">
@@ -135,6 +274,12 @@ function GajiKaryawan({ token }: GajiKaryawanProps) {
                   {gaji.totalSalary.toLocaleString()}
                 </p>
               </div>
+              <button
+                className="bg-blue-500 text-white py-2 px-4 rounded mt-4"
+                onClick={() => generatePDF(gaji)}
+              >
+                Cetak Slip Gaji
+              </button>
             </div>
           </div>
         ))}

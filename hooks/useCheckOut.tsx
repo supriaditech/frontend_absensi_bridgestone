@@ -49,6 +49,7 @@ const useCheckOut = (token: string) => {
       };
 
       const response = await api.call();
+      console.log("INI ADALAH SEBUAH RESPONE DARI CHECKOUT =", response);
       if (response.meta.statusCode === 200) {
         toast.success("Check-out successful!", { autoClose: 3000 });
         mutate();

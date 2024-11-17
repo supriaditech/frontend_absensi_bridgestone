@@ -50,6 +50,8 @@ const useCheckIn = (token: string) => {
       };
 
       const response = await api.call();
+      console.log("INI ADALAH RESPONE DARI API CHECKIN =", response);
+
       if (response.meta.statusCode === 200) {
         toast.success("Check-in successful!", { autoClose: 3000 });
         mutate(); // Mutasi data untuk memastikan status check-in diperbarui

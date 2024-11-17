@@ -52,7 +52,10 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
     signOut({ callbackUrl: "/" });
   };
 
-  let photoProfile = ApiUrl + session?.user?.photoUrl;
+  let photoProfile = session?.user?.photoUrl
+    ? ApiUrl + session.user.photoUrl
+    : "/";
+
   const navList = (
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       {navItems.map((item) => (
@@ -103,7 +106,7 @@ function StickyNavbar({ children, title }: StickyNavbarProps) {
                       className="ml-2 flex justify-center items-center gap-2 md:gap-4"
                       onClick={toggleMenu}
                     >
-                      {photoProfile ? (
+                      {session ? (
                         <div className="w-6 h-6 md:w-12 md:h-12 overflow-hidden">
                           <Image
                             src={photoProfile}

@@ -6,7 +6,7 @@ function FormLogin() {
   const { register, handleSubmit, onSubmit, errors } = useLogin();
 
   return (
-    <div className="flex flex-col justify-center items-center p-8 sm:p-16 md:p-24 gap-4 w-full">
+    <div className="flex flex-col justify-center items-center p-8 sm:px-16 md:p-10 gap-4 w-full">
       <p className="text-4xl font-bold mb-4">Login</p>
       <form
         onSubmit={handleSubmit(onSubmit)}
