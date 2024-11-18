@@ -127,7 +127,7 @@ const CheckoutComponent = () => {
   return (
     <div className="check-out-component p-4 md:p-20">
       {location ? (
-        <div className="lg:flex justify-center items-center gap-4">
+        <div className="md:grid md:grid-cols-2 justify-center items-center gap-4">
           <video
             ref={videoRef}
             autoPlay
@@ -136,20 +136,22 @@ const CheckoutComponent = () => {
             height="560"
             className="rounded-md mb-4 lg:mb-0"
           />
-          <MapContainer
-            center={location}
-            zoom={20}
-            className="z-0 rounded-md w-full h-[300px] md:h-[540px] lg:w-[720px]"
-            style={{ zIndex: 0 }}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-            <Marker position={location}>
-              <Popup>Your current location</Popup>
-            </Marker>
-          </MapContainer>
+          <div className="w-full bg red-500 h-full">
+            <MapContainer
+              center={location}
+              zoom={20}
+              className="z-0 rounded-md w-full h-[300px] md:h-full"
+              style={{ zIndex: 0 }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <Marker position={location}>
+                <Popup>Your current location</Popup>
+              </Marker>
+            </MapContainer>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col justify-center items-center gap-4  p-20">
