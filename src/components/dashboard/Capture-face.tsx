@@ -77,7 +77,7 @@ const CaptureFace: React.FC<CaptureFaceProps> = ({ token, onClose, id }) => {
         session?.user?.id,
         averagedDescriptor
       );
-console.log(result)
+      console.log(result);
       if (result.success) {
         onClose(); // Close the modal only on success
       } else {
@@ -121,13 +121,13 @@ console.log(result)
         muted
         // width="400"
         // height="400"
-        className="rounded-full object-cover w-full h-full xl:w-3/5 2xl:w-full"
+        className="rounded-full object-cover w-60 h-80 xl:w-3/5 2xl:w-full"
         style={{ aspectRatio: "1/1" }} // Ensures the video keeps a 1:1 aspect ratio
       />
       <canvas
         ref={canvasRef}
-        width="600"
-        height="600"
+        width="400"
+        height="400"
         style={{ display: "none" }}
         className="bg-red-300"
       />

@@ -11,6 +11,7 @@ import { formatToLocalTime } from "../../../utils/formatToLocalTime";
 import { useDaftarGaji } from "../../../hooks/useDaftarGaji";
 import { convertToRupiah } from "../../../utils/convertRupiah";
 import { MONTHS } from "../../../types/month";
+import * as XLSX from "xlsx";
 
 interface TabelDaftarGajiAdminProps {
   userId: number;
@@ -90,6 +91,33 @@ function TabelDaftarGajiAdmin({ userId, token }: TabelDaftarGajiAdminProps) {
   // Data tahun yang bisa dipilih
   const years = ["Semua Tahun", 2024, 2025, 2026, 2027, 2028, 2029, 2030]; // Tahun statis, bisa dimodifikasi sesuai kebutuhan
 
+  const exportToExcel = (data: any[], month: string, year: string) => {
+    // Konversi data ke format yang sesuai untuk Excel
+    const formattedData = data.map((item, index) => ({
+      No: index + 1,
+      "User ID": item.user.userId,
+      Nama: item.user.name,
+      Jabatan: item.user.employmentStatus,
+      Bulan: month,
+      Tahun: year,
+      "Jumlah Absen": item.attendanceStats?.Absen || 0,
+      "Jumlah Izin": item.attendanceStats?.Izin || 0,
+      "Jumlah Late": item.attendanceStats?.Late || 0,
+      "Gaji Harian": item.dailySalary,
+      "Gaji Awal": item.initialSalary,
+      "Potongan Gaji": item.totalMonthlyDeductions,
+      "Hasil Gaji": item.totalSalary,
+    }));
+
+    // Buat worksheet dan workbook
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Gaji");
+
+    // Ekspor file
+    const fileName = `Rekap_Gaji_Bulanan_${month}_${year}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
   return (
     <div>
       <Card className="h-full w-full overflow-scroll p-4 border-2 my-4">
@@ -228,7 +256,7 @@ function TabelDaftarGajiAdmin({ userId, token }: TabelDaftarGajiAdminProps) {
                       color="blue-gray"
                       className="font-normal"
                     >
-                      {gaji.attendanceStats.Absen} Hari
+                      {gaji?.attendanceStats?.Absen} Hari
                     </Typography>
                   </td>
                   <td className={classes}>
@@ -237,7 +265,7 @@ function TabelDaftarGajiAdmin({ userId, token }: TabelDaftarGajiAdminProps) {
                       color="blue-gray"
                       className="font-normal"
                     >
-                      {gaji.attendanceStats.Izin} Hari
+                      {gaji?.attendanceStats?.Izin} Hari
                     </Typography>
                   </td>
                   <td className={classes}>
@@ -246,7 +274,7 @@ function TabelDaftarGajiAdmin({ userId, token }: TabelDaftarGajiAdminProps) {
                       color="blue-gray"
                       className="font-normal"
                     >
-                      {gaji.attendanceStats.Late} Hari
+                      {gaji?.attendanceStats?.Late} Hari
                     </Typography>
                   </td>
                   <td className={classes}>
@@ -289,6 +317,14 @@ function TabelDaftarGajiAdmin({ userId, token }: TabelDaftarGajiAdminProps) {
             })}
           </tbody>
         </table>
+
+        <Button
+          onClick={() => exportToExcel(filteredData, searchMonth, searchYear)}
+          className="bg-green-500 text-white"
+        >
+          Export to Excel
+        </Button>
+
         <div className="flex justify-center gap-6 items-center mt-4">
           <Button
             onClick={handlePrevious}
