@@ -51,9 +51,13 @@ function GajiKaryawan({ token }: GajiKaryawanProps) {
     // Header
 
     doc.setFontSize(12);
-    doc.text("PT. MAJU JAYA ABADI", 20, 30);
+    doc.text("PT Bridgestone Sumatra rubber estate", 20, 30);
     doc.setFontSize(10);
-    doc.text("Jl. Sudirman no. 143", 20, 35);
+    doc.text("Jl. Dolok Merangir No.4, Dolok Merangir I, ", 20, 35);
+    doc.setFontSize(10);
+    doc.text("Kec. Dolok Batu Nanggar,  ", 20, 40);
+    doc.setFontSize(10);
+    doc.text("Kabupaten Simalungun, Sumatera Utara 21155 ", 20, 45);
 
     // Informasi Karyawan dan Periode
     doc.setFontSize(10);
@@ -174,7 +178,7 @@ function GajiKaryawan({ token }: GajiKaryawanProps) {
     yPosition += 5;
     doc.text("Manager HRD", 140, yPosition);
     yPosition += 15; // Spasi untuk tanda tangan
-    doc.text("(Nama Manager)", 140, yPosition);
+    doc.text("Junaidi", 140, yPosition);
 
     // Save the PDF
     doc.save(
