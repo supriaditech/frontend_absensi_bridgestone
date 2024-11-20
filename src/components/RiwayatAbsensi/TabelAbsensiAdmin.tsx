@@ -9,6 +9,7 @@ import {
 } from "@material-tailwind/react";
 import { formatToLocalTime } from "../../../utils/formatToLocalTime";
 import { useAbsensiKaryawanAdmin } from "../../../hooks/useAbsensiKaryawanAdmin";
+import * as XLSX from "xlsx";
 
 interface TabelAbsensiAdmin {
   userId: number;
@@ -29,12 +30,13 @@ function TabelAbsensiAdmin({ userId, token }: TabelAbsensiAdmin) {
   const [searchDate, setSearchDate] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchStatus, setSearchStatus] = useState<string>("");
-
+  console.log(searchDate);
   const { absensiData, isLoading, isError } = useAbsensiKaryawanAdmin(
     token,
     userId
   );
 
+  console.log("absensiData", absensiData);
   const [currentPage, setCurrentPage] = useState(1); // Menyimpan halaman saat ini
 
   if (isLoading) return <div>Loading...</div>;
@@ -91,6 +93,29 @@ function TabelAbsensiAdmin({ userId, token }: TabelAbsensiAdmin) {
     }
   }
 
+  const exportToExcel = (data: any[], month: string, year: string) => {
+    // Konversi data ke format yang sesuai untuk Excel
+    const formattedData = data.map((item, index) => ({
+      No: index + 1,
+      "User ID": item.user.userId,
+      Nama: item.user.name,
+      Jabatan: item.user.employmentStatus,
+
+      Date: formatToLocalTime(item.date),
+      "Waktu Checkin ": formatToLocalTime(item.checkInTime) || 0,
+      "Waktu Checkout": formatToLocalTime(item.checkOutTime) || 0,
+      Status: item.status || 0,
+    }));
+
+    // Buat worksheet dan workbook
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Gaji");
+
+    // Ekspor file
+    const fileName = `Rekap_Absensi_${month}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
   return (
     <div>
       <Card className="h-full w-full overflow-scroll p-4 border-2 my-4">
@@ -241,6 +266,14 @@ function TabelAbsensiAdmin({ userId, token }: TabelAbsensiAdmin) {
             })}
           </tbody>
         </table>
+
+        <Button
+          onClick={() => exportToExcel(filteredData, searchDate, "")}
+          className="bg-green-500 text-white"
+        >
+          Export to Excel
+        </Button>
+
         <div className="flex justify-center gap-6 items-center mt-4">
           <Button
             onClick={handlePrevious}
